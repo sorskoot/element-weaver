@@ -1,0 +1,51 @@
+/**
+ * /!\ This file is auto-generated.
+ *
+ * This is the entry point of your standalone application.
+ *
+ * There are multiple tags used by the editor to inject code automatically:
+ *     - `wle:auto-imports:start` and `wle:auto-imports:end`: The list of import statements
+ *     - `wle:auto-register:start` and `wle:auto-register:end`: The list of component to register
+ */
+
+import {WonderlandEngine} from '@wonderlandengine/api';
+import {registerServices} from './bootstrap-services.ts';
+
+/* wle:auto-imports:start */
+import {AudioListener} from '@wonderlandengine/components';
+import {Cursor} from '@wonderlandengine/components';
+import {CursorTarget} from '@wonderlandengine/components';
+import {FingerCursor} from '@wonderlandengine/components';
+import {HandTracking} from '@wonderlandengine/components';
+import {PlayerHeight} from '@wonderlandengine/components';
+import {VrModeActiveSwitch} from '@wonderlandengine/components';
+import {WasdControlsComponent} from '@wonderlandengine/components';
+import {HexGrid} from './components/hex-grid.js';
+import {InputHelper} from './components/input-helper.js';
+import {TileInteraction} from './components/tile-interaction.js';
+import {TileMaterials} from './components/tile-materials.js';
+import {TilePrefabs} from './components/tile-prefabs.js';
+import {TilePreview} from './components/tile-preview.js';
+import {RootUI} from './ui/root-ui.tsx';
+/* wle:auto-imports:end */
+
+export default function (engine: WonderlandEngine) {
+    registerServices();
+    /* wle:auto-register:start */
+engine.registerComponent(AudioListener);
+engine.registerComponent(Cursor);
+engine.registerComponent(CursorTarget);
+engine.registerComponent(FingerCursor);
+engine.registerComponent(HandTracking);
+engine.registerComponent(PlayerHeight);
+engine.registerComponent(VrModeActiveSwitch);
+engine.registerComponent(WasdControlsComponent);
+engine.registerComponent(HexGrid);
+engine.registerComponent(InputHelper);
+engine.registerComponent(TileInteraction);
+engine.registerComponent(TileMaterials);
+engine.registerComponent(TilePrefabs);
+engine.registerComponent(TilePreview);
+engine.registerComponent(RootUI);
+/* wle:auto-register:end */
+}

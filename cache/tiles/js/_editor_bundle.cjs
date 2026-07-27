@@ -32367,8 +32367,9 @@
         rotation: 0
       });
       changedTileIds.push(addedTileId);
-      const addedPlaceholderIds = this.surroundWithPlaceholders();
-      changedTileIds.push(...addedPlaceholderIds);
+      changedTileIds.push(...this.surroundWithPlaceholders());
+      changedTileIds.push(...this.surroundWithPlaceholders());
+      changedTileIds.push(...this.surroundWithPlaceholders());
       this.onTilesChanged.emit(changedTileIds);
       this.createNextTilePreview();
     }
@@ -32391,16 +32392,14 @@
       const allTiles = this.gameModel.getAllTiles();
       for (const tile of allTiles) {
         const neighbors = tile.neighbors();
-        if (tile.type === "piece" /* piece */) {
-          for (const neighbor of neighbors) {
-            const neighborTile = this.gameModel.getTileAt(neighbor.x, neighbor.y, neighbor.z);
-            if (!neighborTile) {
-              const addedTileId = this.gameModel.addTile(neighbor.x, neighbor.y, neighbor.z, {
-                id: `${neighbor.x},${neighbor.y},${neighbor.z}`,
-                type: "placeholder" /* placeholder */
-              });
-              addedTileIds.push(addedTileId);
-            }
+        for (const neighbor of neighbors) {
+          const neighborTile = this.gameModel.getTileAt(neighbor.x, neighbor.y, neighbor.z);
+          if (!neighborTile) {
+            const addedTileId = this.gameModel.addTile(neighbor.x, neighbor.y, neighbor.z, {
+              id: `${neighbor.x},${neighbor.y},${neighbor.z}`,
+              type: "placeholder" /* placeholder */
+            });
+            addedTileIds.push(addedTileId);
           }
         }
       }
@@ -32424,8 +32423,6 @@
         });
         this.checkMatches(tile.id);
         const changedTileIds = [tile.id];
-        const addedPlaceholderIds = this.surroundWithPlaceholders();
-        changedTileIds.push(...addedPlaceholderIds);
         this.onTilesChanged.emit(changedTileIds);
         this.createNextTilePreview();
       }
@@ -33446,6 +33443,15 @@
   __decorateClass([
     property.object({ required: true })
   ], TilePreview.prototype, "tilePrefabsObject", 2);
+
+  // js/types/GameRulesConfig.ts
+  var GameRulesConfig_exports = {};
+
+  // js/types/ScoringConfig.ts
+  var ScoringConfig_exports = {};
+
+  // js/types/TimingConfig.ts
+  var TimingConfig_exports = {};
 
   // js/ui/GameServicesProvider.tsx
   var GameServicesProvider_exports = {};
@@ -37086,6 +37092,9 @@
   _registerEditor(tile_materials_exports);
   _registerEditor(tile_prefabs_exports);
   _registerEditor(tile_preview_exports);
+  _registerEditor(GameRulesConfig_exports);
+  _registerEditor(ScoringConfig_exports);
+  _registerEditor(TimingConfig_exports);
   _registerEditor(GameServicesProvider_exports);
   _registerEditor(mainMenu_exports);
   _registerEditor(useMenuViewModel_exports);

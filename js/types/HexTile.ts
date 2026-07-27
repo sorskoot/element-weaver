@@ -1,7 +1,23 @@
 import {Six} from './Six.ts';
+export type TileId = string;
+
+export interface Axial {
+  q: number;
+  r: number;
+}
+
+export interface TileDefinition {
+  id: TileId;
+  name: string;
+}
+
+export interface WeightedTile {
+  id: TileId;
+  weight: number;
+}
 
 type HexTileBase = {
-    id: string;
+    id: TileId;
     type: TileType;
 };
 
@@ -29,3 +45,6 @@ export enum TileElementType {
     air = 'air',
     spirit = 'spirit',
 }
+
+
+

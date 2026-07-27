@@ -67,8 +67,9 @@ export class GamePlayService implements IGamePlayService {
         changedTileIds.push(addedTileId);
 
         // surround the center tile with 6 placeholder tiles
-        const addedPlaceholderIds = this.surroundWithPlaceholders();
-        changedTileIds.push(...addedPlaceholderIds);
+        changedTileIds.push(...this.surroundWithPlaceholders());
+        changedTileIds.push(...this.surroundWithPlaceholders());
+        changedTileIds.push(...this.surroundWithPlaceholders());
 
         this.onTilesChanged.emit(changedTileIds);
 
@@ -95,22 +96,22 @@ export class GamePlayService implements IGamePlayService {
         const allTiles = this.gameModel.getAllTiles();
         for (const tile of allTiles) {
             const neighbors = tile.neighbors();
-            if (tile.type === TileType.piece) {
-                // if the tile is a piece, check its neighbors and
-                // add placeholder tiles if they don't exist
-                for (const neighbor of neighbors) {
-                    const neighborTile = this.gameModel.getTileAt(neighbor.x, neighbor.y, neighbor.z);
-                    if (!neighborTile) {
-                        // there's an empty spot next to a tile,
-                        // so we should add a placeholder tile there
-                        const addedTileId = this.gameModel.addTile(neighbor.x, neighbor.y, neighbor.z, {
-                            id: `${neighbor.x},${neighbor.y},${neighbor.z}`,
-                            type: TileType.placeholder,
-                        });
+            //  if (tile.type === TileType.piece) {
+            // if the tile is a piece, check its neighbors and
+            // add placeholder tiles if they don't exist
+            for (const neighbor of neighbors) {
+                const neighborTile = this.gameModel.getTileAt(neighbor.x, neighbor.y, neighbor.z);
+                if (!neighborTile) {
+                    // there's an empty spot next to a tile,
+                    // so we should add a placeholder tile there
+                    const addedTileId = this.gameModel.addTile(neighbor.x, neighbor.y, neighbor.z, {
+                        id: `${neighbor.x},${neighbor.y},${neighbor.z}`,
+                        type: TileType.placeholder,
+                    });
 
-                        addedTileIds.push(addedTileId);
-                    }
+                    addedTileIds.push(addedTileId);
                 }
+                //   }
             }
         }
         return addedTileIds;
@@ -136,8 +137,8 @@ export class GamePlayService implements IGamePlayService {
             this.checkMatches(tile.id);
             const changedTileIds: string[] = [tile.id];
             // surround the newly placed tile with placeholder tiles if empty spots exist
-            const addedPlaceholderIds = this.surroundWithPlaceholders();
-            changedTileIds.push(...addedPlaceholderIds);
+            //  const addedPlaceholderIds = this.surroundWithPlaceholders();
+            // changedTileIds.push(...addedPlaceholderIds);
             this.onTilesChanged.emit(changedTileIds);
 
             this.createNextTilePreview();

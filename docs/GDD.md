@@ -2,7 +2,11 @@
 
 ## Core Concept
 
-Element Weaver is a cozy tile-placement game for VR. Players place hexagonal tiles and connect matching elemental colors, similar to dominoes. The goal is to create valuable connections and achieve the highest score possible.
+Element Weaver is a cozy VR tile-matching game that combines domino placement with match-3 gameplay on a hexagonal board.
+
+Players place domino-shaped pieces made from two colored hexagons. Creating groups of three or more connected tiles of the same color removes the entire group and awards points.
+
+The goal is to survive as long as possible and achieve the highest score.
 
 ## Platform
 
@@ -10,184 +14,158 @@ Element Weaver is a cozy tile-placement game for VR. Players place hexagonal til
 - Also playable in a desktop browser
 - Built with Wonderland Engine
 
-## Gameplay
-
-Players place hexagonal tiles onto the board and rotate them using the controller before placement.
-
-The board starts with a single random tile.
-
-Players always hold the current tile and can rotate it before placement.
-
-Only positions adjacent to the existing board can be selected.
-
-The game focuses entirely on placement decisions. There are no resources, objectives, territory mechanics, or network scoring.
-
-Scoring is based on how tiles connect to neighboring tiles:
-
-- Matching colors score points.
-- Matching multiple colors with a single placement awards bonus points.
-
-## Elements
-
-Each tile contains six randomly assigned elemental colors.
-
-Available elements:
-
-- Red — Fire
-- Blue — Water
-- Green — Earth
-- Yellow — Air
-- Purple — Spirit
-
-Spirit acts as a wildcard and can match any other element.
-
-Spirit rules:
-
-- Spirit matches every element.
-- Spirit scores no points.
-- Spirit placements do not reset the combo or multiplier.
-- Spirit-to-Spirit connections are valid.
-- Spirit connections never contribute to score calculations.
-- Generated tiles may contain at most one Spirit edge.
-
-Element distribution is weighted:
-
-- Fire, Water, Earth, and Air are common.
-- Spirit is intentionally rarer.
-
-## Assets
-
-- The tile model is already completed.
-
-## Game Jam Scope
-
-This project is being developed for a game jam.
-
-- Keep the game as simple as possible.
-- Prioritize reaching a playable state quickly.
-- The jam theme is Elements.
-- Development time is limited to only a few remaining days.
-
 ## Core Design Pillars
 
 1. Relaxing VR interaction.
-2. Simple but meaningful placement decisions.
-3. Rewarding score and combo growth.
+2. Easy to learn, difficult to master.
+3. Meaningful placement decisions.
+4. Rewarding large matches.
+5. Cozy presentation.
 
 ## Core Gameplay Loop
 
-1. Preview the next tile.
-2. Rotate the current tile.
-3. Place it adjacent to the existing board.
-4. Score direct matches.
-5. Increase the combo and multiplier.
-6. Receive the next tile.
+1. Preview the current domino.
+2. Preview the next domino.
+3. Rotate the domino.
+4. Place it on the board.
+5. Resolve all matches.
+6. Score removed groups.
+7. Receive the next domino.
+8. Continue until no valid placements remain.
 
-## Board Rules
+## Board
 
-- The board must remain a single connected structure.
-- Players cannot create disconnected islands.
-- Every placement location is valid.
-- Placements never fail.
-- A placement with no matching sides simply awards no points.
-- Placeholder cells are generated around occupied cells.
-- Selecting a placeholder places the current tile there.
+- Fixed-size hexagonal board.
+- Radius 4.
+- 61 playable cells before layout modifications.
+- The board starts empty.
 
-### Placeholder Cells
+### Layouts
 
-- Placeholder cells are stored in the board model.
-- Placeholder cells may use a ghost hex visual.
-- When hovered, the ghost is hidden and the currently held tile is shown snapped to that position.
-- The preview tile is displayed slightly above the board to make placement clear.
+- Players select a layout before starting a game.
+- Layouts disable specific cells on the board.
+- Initial layouts are handcrafted.
+- Layouts create different strategic challenges.
+- Future versions may include a layout editor.
+
+### End Condition
+
+The game ends when no valid domino placement remains.
+
+Examples:
+
+- No adjacent empty cells remain.
+- Only isolated single-cell openings remain.
+
+## Dominoes
+
+- Every piece consists of two connected hexagons.
+- Dominoes may face any of the six hex-grid directions.
+- Both hexes must fit on empty cells.
+- Overlapping existing tiles is not allowed.
+
+### Colors
+
+- 8 colors.
+- Colors are gameplay-driven rather than element-driven.
+- No wildcard color.
+- Duplicate-color dominoes are allowed.
+- 75% of generated dominoes contain two different colors.
+- 25% of generated dominoes contain two identical colors.
+
+## Matching Rules
+
+- A match is a connected group of 3 or more tiles of the same color.
+- Connections use hex-grid adjacency.
+- The entire connected group is removed.
+- All valid groups are removed simultaneously.
+- Multiple groups may be removed by a single placement.
+- Removed tiles become empty cells again.
+- Empty holes inside the board are valid.
+- No gravity.
+- No refill mechanics.
+- No cascades.
 
 ## Scoring
 
-Scoring is based only on direct matches created by the newly placed tile.
+Scoring rewards efficient placements and large groups.
 
-No network scoring is used.
+Factors:
 
-Base score:
+- Number of tiles removed.
+- Group size.
+- Multiple groups removed in a single placement.
+- Multiple colors matched in a single placement.
 
-- 1 match = 1 point
-- 2 matches = 2 points
-- 3 matches = 4 points
-- 4 matches = 8 points
-- 5 matches = 16 points
-- 6 matches = 32 points
+Exact score values should remain configurable.
 
-### Combo System
+## Balancing
 
-- A placement with at least one elemental match increases the combo.
-- Consecutive successful placements build larger bonuses.
-- A placement with no elemental matches resets the combo.
+The core game should remain simple.
 
-### Multiplier System
+If the game proves too easy during playtesting, difficulty should primarily be adjusted through:
 
-- A successful placement increases the score multiplier.
-- A placement with no elemental matches resets the multiplier.
-- Spirit-only placements preserve the current multiplier.
-- The multiplier is capped.
-- The cap should be configurable in code.
-- Initial cap: x3.
+- Board size.
+- Board layouts.
+- Number of colors.
+- Domino color distribution.
 
-## Tile Generation
+The game should not rely on gravity, automatic board growth, refill mechanics, or cascading systems.
 
-- Tiles may contain duplicate elements.
-- The first tile may not contain Spirit.
-- Generation uses a weighted pool where Spirit appears less frequently than the other elements.
+Potential future additions include special tiles, but these are not part of the core design.
+
+Examples:
+
+- Bomb tiles.
+- Locked tiles.
+- Color-clearing tiles.
+- Blocker tiles.
+
+These should only be explored after the core game has been thoroughly tested.
+
+## Game Modes
+
+### Endless
+
+- Primary game mode.
+- Continue until no valid placement remains.
+- Highest score wins.
+
+## Progression
+
+### High Scores
+
+- Record best scores.
+- Track scores per layout.
+- Support local leaderboards.
 
 ## User Interface
 
 Visible during gameplay:
 
 - Current score.
-- Current multiplier.
-- Current combo.
-- Next tile preview.
+- Current domino.
+- Next domino preview.
 
 Optional polish:
 
-- Floating score popups at placement locations.
-- Placement animations.
-- Combo feedback effects.
+- Floating score popups.
+- Match effects.
+- Placement effects.
+- Layout-specific presentation.
 
-## Game Modes
+## Visual Direction
 
-### Endless Mode
+Initial direction:
 
-Default mode.
+- Cozy nature theme.
 
-The game continues indefinitely.
+Possible future themes:
 
-### Limited Tile Mode
+- Neon cyberpunk.
+- Additional visual skins.
 
-Stretch goal.
-
-- Fixed tile count.
-- Initial value: 50 tiles.
-- Tile count should be configurable.
-- Highest score wins.
-
-### Timed Mode
-
-Post-jam feature.
-
-Players attempt to achieve the highest possible score before time expires.
-
-## Vertical Slice
-
-The minimum playable version consists of:
-
-1. Starting tile.
-2. Placeholder generation.
-3. Tile rotation.
-4. Tile placement.
-5. Neighbor detection.
-6. Match detection.
-7. Scoring.
-8. Next tile generation and preview.
-
-This is the minimum feature set required for a game jam submission.
+Gameplay should remain independent from the visual theme.
 
 ## Architecture
 
@@ -195,22 +173,19 @@ The project follows a lightweight MVVM-inspired architecture.
 
 ### Models
 
-- Pure game state.
-- No Wonderland Engine dependencies.
-
-Examples:
-
 - GameState.
 - BoardModel.
-- TileModel.
+- DominoModel.
+- LayoutModel.
 
 ### Services
 
-- Game rules.
-- State mutations.
-- Tile generation.
+- Domino generation.
 - Placement validation.
+- Match detection.
+- Match resolution.
 - Scoring.
+- High score management.
 
 ### ViewModels
 
@@ -222,30 +197,24 @@ Examples:
 - Rendering.
 - Input.
 - Visual feedback.
-- Communication with services.
+- VR interaction.
 
 Components should not contain core gameplay logic.
 
 ## Planned Implementation Order
 
-1. TileModel.
-2. BoardModel.
-3. TileGenerator.
-4. PlacementService.
-5. Neighbor detection.
-6. Match detection.
+1. Fixed board implementation.
+2. Domino model.
+3. Layout system.
+4. Placement system.
+5. Match detection.
+6. Match resolution.
 7. Scoring.
-8. Next tile preview.
-9. Combo and multiplier.
-10. Visual polish.
-
-## Future Ideas
-
-- High scores.
-- Enhanced score popups.
-- Additional game modes.
-- Improved visual effects.
-- Performance optimizations such as pooling if board sizes become very large.
+8. Next-piece preview.
+9. Game-over detection.
+10. High-score system.
+11. Layout editor.
+12. Visual polish.
 
 
 

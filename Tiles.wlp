@@ -808,6 +808,230 @@
                 "metallicFactor": 0.1,
                 "roughnessFactor": 0.8999999
             }
+        },
+        "9": {
+            "link": {
+                "name": "Fire",
+                "file": "assets\\models\\tile.fbx"
+            },
+            "pipeline": "13",
+            "Physical": {
+                "metallicFactor": 0.1,
+                "roughnessFactor": 0.8,
+                "albedoTexture": null,
+                "albedoColor": [
+                    0.1,
+                    0.1,
+                    0.1,
+                    1.0
+                ],
+                "normalTexture": null,
+                "occlusionRoughnessMetallicTexture": null,
+                "emissiveColor": [
+                    0.9333333,
+                    0.7254902,
+                    0.5411764,
+                    1.0
+                ],
+                "emissiveTexture": null
+            },
+            "name": "Mushroom"
+        },
+        "10": {
+            "link": {
+                "name": "Fire",
+                "file": "assets\\models\\tile.fbx"
+            },
+            "pipeline": "13",
+            "Physical": {
+                "metallicFactor": 0.1,
+                "roughnessFactor": 0.8,
+                "albedoTexture": null,
+                "albedoColor": [
+                    0.1,
+                    0.1,
+                    0.1,
+                    1.0
+                ],
+                "normalTexture": null,
+                "occlusionRoughnessMetallicTexture": null,
+                "emissiveColor": [
+                    0.6666666,
+                    0.8117647,
+                    0.6117647,
+                    1.0
+                ],
+                "emissiveTexture": null
+            },
+            "name": "Leaf"
+        },
+        "11": {
+            "link": {
+                "name": "Fire",
+                "file": "assets\\models\\tile.fbx"
+            },
+            "pipeline": "13",
+            "Physical": {
+                "metallicFactor": 0.1,
+                "roughnessFactor": 0.8,
+                "albedoTexture": null,
+                "albedoColor": [
+                    0.1,
+                    0.1,
+                    0.1,
+                    1.0
+                ],
+                "normalTexture": null,
+                "occlusionRoughnessMetallicTexture": null,
+                "emissiveColor": [
+                    0.6235294,
+                    0.7843137,
+                    0.8627451,
+                    1.0
+                ],
+                "emissiveTexture": null
+            },
+            "name": "Raindrop"
+        },
+        "12": {
+            "link": {
+                "name": "Fire",
+                "file": "assets\\models\\tile.fbx"
+            },
+            "pipeline": "13",
+            "Physical": {
+                "metallicFactor": 0.1,
+                "roughnessFactor": 0.8,
+                "albedoTexture": null,
+                "albedoColor": [
+                    0.1,
+                    0.1,
+                    0.1,
+                    1.0
+                ],
+                "normalTexture": null,
+                "occlusionRoughnessMetallicTexture": null,
+                "emissiveColor": [
+                    0.9490196,
+                    0.8156862,
+                    0.4156862,
+                    1.0
+                ],
+                "emissiveTexture": null
+            },
+            "name": "Sunflower"
+        },
+        "13": {
+            "link": {
+                "name": "Fire",
+                "file": "assets\\models\\tile.fbx"
+            },
+            "pipeline": "13",
+            "Physical": {
+                "metallicFactor": 0.1,
+                "roughnessFactor": 0.8,
+                "albedoTexture": null,
+                "albedoColor": [
+                    0.1,
+                    0.1,
+                    0.1,
+                    1.0
+                ],
+                "normalTexture": null,
+                "occlusionRoughnessMetallicTexture": null,
+                "emissiveColor": [
+                    0.8470588,
+                    0.6352941,
+                    0.7372549,
+                    1.0
+                ],
+                "emissiveTexture": null
+            },
+            "name": "Berry"
+        },
+        "14": {
+            "link": {
+                "name": "Fire",
+                "file": "assets\\models\\tile.fbx"
+            },
+            "pipeline": "13",
+            "Physical": {
+                "metallicFactor": 0.1,
+                "roughnessFactor": 0.8,
+                "albedoTexture": null,
+                "albedoColor": [
+                    0.1,
+                    0.1,
+                    0.1,
+                    1.0
+                ],
+                "normalTexture": null,
+                "occlusionRoughnessMetallicTexture": null,
+                "emissiveColor": [
+                    0.7843137,
+                    0.6627451,
+                    0.5215686,
+                    1.0
+                ],
+                "emissiveTexture": null
+            },
+            "name": "Acorn"
+        },
+        "15": {
+            "link": {
+                "name": "Fire",
+                "file": "assets\\models\\tile.fbx"
+            },
+            "pipeline": "13",
+            "Physical": {
+                "metallicFactor": 0.1,
+                "roughnessFactor": 0.8,
+                "albedoTexture": null,
+                "albedoColor": [
+                    0.1,
+                    0.1,
+                    0.1,
+                    1.0
+                ],
+                "normalTexture": null,
+                "occlusionRoughnessMetallicTexture": null,
+                "emissiveColor": [
+                    0.717647,
+                    0.7254902,
+                    0.5411764,
+                    1.0
+                ],
+                "emissiveTexture": null
+            },
+            "name": "Pinecone"
+        },
+        "16": {
+            "link": {
+                "name": "Fire",
+                "file": "assets\\models\\tile.fbx"
+            },
+            "pipeline": "13",
+            "Physical": {
+                "metallicFactor": 0.1,
+                "roughnessFactor": 0.8,
+                "albedoTexture": null,
+                "albedoColor": [
+                    0.1,
+                    0.1,
+                    0.1,
+                    1.0
+                ],
+                "normalTexture": null,
+                "occlusionRoughnessMetallicTexture": null,
+                "emissiveColor": [
+                    0.7254902,
+                    0.6823529,
+                    0.8431372,
+                    1.0
+                ],
+                "emissiveTexture": null
+            },
+            "name": "Feather"
         }
     },
     "objects": {
@@ -977,13 +1201,16 @@
             "name": "Light",
             "components": [
                 {
-                    "type": "light"
+                    "type": "light",
+                    "light": {
+                        "type": "sun"
+                    }
                 }
             ],
             "translation": [
                 2.17001,
                 1.9305839,
-                0.0
+                -9.9551029
             ],
             "rotation": [
                 0.0,
@@ -1053,6 +1280,406 @@
                         "material": "7"
                     }
                 }
+            ]
+        },
+        "12": {
+            "name": "Tile_Mushroom",
+            "translation": [
+                0.0,
+                0.0,
+                2.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scaling": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        "13": {
+            "name": "Tile_Leaf",
+            "translation": [
+                2.0,
+                0.0,
+                2.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scaling": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        "14": {
+            "name": "Tile_Raindrop",
+            "translation": [
+                4.0,
+                0.0,
+                2.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scaling": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        "15": {
+            "name": "Tile_Sunflower",
+            "translation": [
+                6.0,
+                0.0,
+                2.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scaling": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        "16": {
+            "name": "Tile_Berry",
+            "translation": [
+                8.0,
+                0.0,
+                2.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scaling": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        "17": {
+            "name": "Tile_Acorn",
+            "translation": [
+                10.0,
+                0.0,
+                2.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scaling": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        "18": {
+            "name": "Tile_Pinecone",
+            "translation": [
+                12.0,
+                0.0,
+                2.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scaling": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        "19": {
+            "name": "Tile_Feather",
+            "translation": [
+                14.0,
+                0.0,
+                2.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scaling": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        "20": {
+            "link": {
+                "name": "ND — Sketch.003",
+                "file": "assets\\models\\tile_empty.fbx"
+            },
+            "rotation": [
+                0.0,
+                0.258819,
+                0.0,
+                0.9659258
+            ],
+            "scaling": [
+                0.8999999,
+                0.8999999,
+                0.8999999
+            ],
+            "parent": "12",
+            "components": [
+                {
+                    "originalIndex": 0,
+                    "mesh": {
+                        "material": "9"
+                    }
+                }
+            ],
+            "translation": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "21": {
+            "link": {
+                "name": "ND — Sketch.003",
+                "file": "assets\\models\\tile_empty.fbx"
+            },
+            "rotation": [
+                0.0,
+                0.258819,
+                0.0,
+                0.9659258
+            ],
+            "scaling": [
+                0.8999999,
+                0.8999999,
+                0.8999999
+            ],
+            "parent": "13",
+            "components": [
+                {
+                    "originalIndex": 0,
+                    "mesh": {
+                        "material": "10"
+                    }
+                }
+            ],
+            "translation": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "22": {
+            "link": {
+                "name": "ND — Sketch.003",
+                "file": "assets\\models\\tile_empty.fbx"
+            },
+            "rotation": [
+                0.0,
+                0.258819,
+                0.0,
+                0.9659258
+            ],
+            "scaling": [
+                0.8999999,
+                0.8999999,
+                0.8999999
+            ],
+            "parent": "14",
+            "components": [
+                {
+                    "originalIndex": 0,
+                    "mesh": {
+                        "material": "11"
+                    }
+                }
+            ],
+            "translation": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "23": {
+            "link": {
+                "name": "ND — Sketch.003",
+                "file": "assets\\models\\tile_empty.fbx"
+            },
+            "rotation": [
+                0.0,
+                0.258819,
+                0.0,
+                0.9659258
+            ],
+            "scaling": [
+                0.8999999,
+                0.8999999,
+                0.8999999
+            ],
+            "parent": "15",
+            "components": [
+                {
+                    "originalIndex": 0,
+                    "mesh": {
+                        "material": "12"
+                    }
+                }
+            ],
+            "translation": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "24": {
+            "link": {
+                "name": "ND — Sketch.003",
+                "file": "assets\\models\\tile_empty.fbx"
+            },
+            "translation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.258819,
+                0.0,
+                0.9659258
+            ],
+            "scaling": [
+                0.8999999,
+                0.8999999,
+                0.8999999
+            ],
+            "parent": "16",
+            "components": [
+                {
+                    "originalIndex": 0,
+                    "mesh": {
+                        "material": "13"
+                    }
+                }
+            ]
+        },
+        "25": {
+            "link": {
+                "name": "ND — Sketch.003",
+                "file": "assets\\models\\tile_empty.fbx"
+            },
+            "translation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.258819,
+                0.0,
+                0.9659258
+            ],
+            "scaling": [
+                0.8999999,
+                0.8999999,
+                0.8999999
+            ],
+            "parent": "17",
+            "components": [
+                {
+                    "originalIndex": 0,
+                    "mesh": {
+                        "material": "14"
+                    }
+                }
+            ]
+        },
+        "26": {
+            "link": {
+                "name": "ND — Sketch.003",
+                "file": "assets\\models\\tile_empty.fbx"
+            },
+            "translation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.258819,
+                0.0,
+                0.9659258
+            ],
+            "scaling": [
+                0.8999999,
+                0.8999999,
+                0.8999999
+            ],
+            "parent": "18",
+            "components": [
+                {
+                    "originalIndex": 0,
+                    "mesh": {
+                        "material": "15"
+                    }
+                }
+            ]
+        },
+        "27": {
+            "link": {
+                "name": "ND — Sketch.003",
+                "file": "assets\\models\\tile_empty.fbx"
+            },
+            "rotation": [
+                0.0,
+                0.258819,
+                0.0,
+                0.9659258
+            ],
+            "scaling": [
+                0.8999999,
+                0.8999999,
+                0.8999999
+            ],
+            "parent": "19",
+            "components": [
+                {
+                    "originalIndex": 0,
+                    "mesh": {
+                        "material": "16"
+                    }
+                }
+            ],
+            "translation": [
+                0.0,
+                0.0,
+                0.0
             ]
         }
     },

@@ -56,14 +56,14 @@
             ],
             "translation": [
                 -0.0,
-                0.5814605,
+                0.5814604,
                 0.0760746
             ],
             "rotation": [
                 -0.4999999,
                 0.0,
                 -4.310341594759848e-8,
-                0.8660254
+                0.8660253
             ],
             "scaling": [
                 1.0,
@@ -141,7 +141,7 @@
                     "light": {
                         "intensity": 3.0,
                         "type": "sun",
-                        "shadows": true
+                        "shadows": false
                     }
                 }
             ],
@@ -1604,29 +1604,29 @@
             "parent": "235",
             "components": [
                 {
-                    "type": "root-ui",
-                    "root-ui": {
+                    "type": "main-menu-root-ui",
+                    "main-menu-root-ui": {
                         "textMaterial": "DefaultFontMaterial",
                         "panelMaterialTextured": "215",
                         "panelMaterial": "214"
                     }
                 }
             ],
-            "translation": [
-                -0.5,
-                1.5,
-                0.5
-            ],
             "rotation": [
+                -0.7071068,
                 0.0,
                 0.0,
-                0.0,
-                1.0
+                0.7071067
             ],
             "scaling": [
-                0.1,
-                0.1,
-                0.1
+                0.2,
+                0.2,
+                0.2
+            ],
+            "translation": [
+                -1.0,
+                0.5099998,
+                -1.0
             ]
         },
         "237": {
@@ -1753,6 +1753,23 @@
                         "mesh": "9"
                     }
                 }
+            ]
+        },
+        "242": {
+            "name": "Mesh.002",
+            "components": [
+                {
+                    "type": "mesh",
+                    "mesh": {
+                        "mesh": "8",
+                        "material": "20"
+                    }
+                }
+            ],
+            "scaling": [
+                1.0,
+                0.5,
+                1.0
             ]
         }
     },
@@ -2022,7 +2039,7 @@
                     1.0,
                     1.0
                 ],
-                "font": "230"
+                "font": "231"
             }
         },
         "20": {
@@ -2766,6 +2783,14 @@
         "259": {
             "fileName": "assets/models/tile_empty.fbx",
             "importerName": ""
+        },
+        "260": {
+            "fileName": "assets/fonts/fredoka-latin-600-normal.ttf",
+            "importerName": ""
+        },
+        "261": {
+            "fileName": "assets/fonts/Nunito[wght].ttf",
+            "importerName": ""
         }
     },
     "fonts": {
@@ -2773,6 +2798,18 @@
             "link": {
                 "name": "DejaVuSans.ttf",
                 "file": "default"
+            }
+        },
+        "231": {
+            "link": {
+                "name": "font_0",
+                "file": "assets\\fonts\\fredoka-latin-600-normal.ttf"
+            }
+        },
+        "232": {
+            "link": {
+                "name": "font_0",
+                "file": "assets\\fonts\\Nunito[wght].ttf"
             }
         }
     },

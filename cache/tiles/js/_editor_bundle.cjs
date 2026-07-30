@@ -3299,11 +3299,11 @@
               return jsxWithValidation(type, props, key, false);
             }
           }
-          var jsx5 = jsxWithValidationDynamic;
-          var jsxs3 = jsxWithValidationStatic;
+          var jsx4 = jsxWithValidationDynamic;
+          var jsxs2 = jsxWithValidationStatic;
           exports.Fragment = REACT_FRAGMENT_TYPE;
-          exports.jsx = jsx5;
-          exports.jsxs = jsxs3;
+          exports.jsx = jsx4;
+          exports.jsxs = jsxs2;
         })();
       }
     }
@@ -32363,7 +32363,8 @@
       const addedTileId = this.gameModel.addTile(0, 0, 0, {
         id: "0,0,0",
         type: "piece" /* piece */,
-        elements: this.elementDistributionService.createRandomElementDistribution(false),
+        tileId: "mushroom",
+        //elements: this.elementDistributionService.createRandomElementDistribution(false),
         rotation: 0
       });
       changedTileIds.push(addedTileId);
@@ -32378,7 +32379,7 @@
       this.nextTile = {
         id: `next-tile-preview-${Date.now()}`,
         type: "piece" /* piece */,
-        elements: tileData,
+        tileId: "mushroom",
         rotation: 0
       };
       this.onTilePreviewChanged.emit(this.nextTile);
@@ -32411,14 +32412,10 @@
     placeTile(tile) {
       const existingTile = this.gameModel.getTileById(tile.id);
       if (existingTile && existingTile.type === "placeholder" /* placeholder */) {
-        const rotatedElements = this.elementDistributionService.rotateElements(
-          this.nextTile.elements,
-          this.nextTile.rotation
-        );
         this.gameModel.addTile(tile.x, tile.y, tile.z, {
           id: `${tile.x},${tile.y},${tile.z}`,
           type: "piece" /* piece */,
-          elements: rotatedElements,
+          tileId: "mushroom",
           rotation: 0
         });
         this.checkMatches(tile.id);
@@ -32446,35 +32443,6 @@
       }
     }
     checkMatches(tileId) {
-      const placedTile = this.gameModel.getTileById(tileId);
-      if (!placedTile || placedTile.type !== "piece" /* piece */) {
-        return;
-      }
-      const placedTileData = this.gameModel.getTileDataById(placedTile.id);
-      if (!placedTileData || placedTileData.type !== "piece" /* piece */) {
-        return;
-      }
-      const neighbors = placedTile.neighbors();
-      let spirit = false;
-      const matchingNeighbors = [];
-      for (let i2 = 0; i2 < 6; i2++) {
-        const neighbor = neighbors[i2];
-        const neighborTile = this.gameModel.getTileAt(neighbor.x, neighbor.y, neighbor.z);
-        if (neighborTile && neighborTile.type === "piece" /* piece */) {
-          const neighborTileData = this.gameModel.getTileDataById(neighborTile.id);
-          if (neighborTileData && placedTileData && neighborTileData.type === "piece" /* piece */) {
-            const placedElement = placedTileData.elements[i2];
-            const neighborElement = neighborTileData.elements[(i2 + 3) % 6];
-            if (placedElement === neighborElement) {
-              matchingNeighbors.push(neighborTile);
-            } else if (placedElement === "spirit" || neighborElement === "spirit") {
-              spirit = true;
-            }
-          }
-        }
-      }
-      this.scoreService.addScore(matchingNeighbors.length, spirit);
-      console.log(`Matching neighbors:`, matchingNeighbors.length);
     }
   };
 
@@ -33084,72 +33052,17 @@
     property.string()
   ], TileData.prototype, "tileId", 2);
 
-  // js/components/tile-materials.ts
-  var tile_materials_exports = {};
-  __export(tile_materials_exports, {
-    TileMaterials: () => TileMaterials
-  });
-  var TileMaterials = class extends Component3 {
-    fireMaterial;
-    waterMaterial;
-    earthMaterial;
-    airMaterial;
-    spiritMaterial;
-    slices;
-    start() {
-      this.slices = [
-        this.object.findByNameRecursive("Slice1")[0],
-        this.object.findByNameRecursive("Slice2")[0],
-        this.object.findByNameRecursive("Slice3")[0],
-        this.object.findByNameRecursive("Slice4")[0],
-        this.object.findByNameRecursive("Slice5")[0],
-        this.object.findByNameRecursive("Slice6")[0]
-      ];
-    }
-    setMaterials(types) {
-      for (let i2 = 0; i2 < this.slices.length; i2++) {
-        const slice = this.slices[i2];
-        const type = types[i2];
-        let material;
-        switch (type) {
-          case "fire" /* fire */:
-            material = this.fireMaterial;
-            break;
-          case "water" /* water */:
-            material = this.waterMaterial;
-            break;
-          case "earth" /* earth */:
-            material = this.earthMaterial;
-            break;
-          case "air" /* air */:
-            material = this.airMaterial;
-            break;
-          case "spirit" /* spirit */:
-            material = this.spiritMaterial;
-            break;
-        }
-        if (material) {
-          slice.getComponent(MeshComponent).material = material;
-        }
-      }
-    }
-  };
-  __publicField(TileMaterials, "TypeName", "tile-materials");
-  __decorateClass([
-    property.material()
-  ], TileMaterials.prototype, "fireMaterial", 2);
-  __decorateClass([
-    property.material()
-  ], TileMaterials.prototype, "waterMaterial", 2);
-  __decorateClass([
-    property.material()
-  ], TileMaterials.prototype, "earthMaterial", 2);
-  __decorateClass([
-    property.material()
-  ], TileMaterials.prototype, "airMaterial", 2);
-  __decorateClass([
-    property.material()
-  ], TileMaterials.prototype, "spiritMaterial", 2);
+  // js/config/TileDefinitions.ts
+  var NATURE_TILES = [
+    { id: "mushroom", name: "mushroom", prefab: "Tile_Mushroom" },
+    { id: "leaf", name: "leaf", prefab: "Tile_Leaf" },
+    { id: "raindrop", name: "raindrop", prefab: "Tile_Raindrop" },
+    { id: "sunflower", name: "sunflower", prefab: "Tile_Sunflower" },
+    { id: "berry", name: "berry", prefab: "Tile_Berry" },
+    { id: "acorn", name: "acorn", prefab: "Tile_Acorn" },
+    { id: "pine-cone", name: "pine cone", prefab: "Tile_Pinecone" },
+    { id: "feather", name: "feather", prefab: "Tile_Feather" }
+  ];
 
   // js/components/hex-grid.ts
   var tempQuat5 = quat_exports.create();
@@ -33197,10 +33110,16 @@
           if (tile.type === "placeholder") {
             newTile = this.tilePrefabs.spawn("Placeholder");
           } else {
-            newTile = this.tilePrefabs.spawn("Tile");
             const tileData = this.gamePlayService.getTileDataById(tileId);
             if (tileData && tileData.type === "piece") {
-              newTile.getComponent(TileMaterials).setMaterials(tileData.elements);
+              const t2 = NATURE_TILES.find((nt) => nt.id === tileData.tileId);
+              if (!t2) {
+                console.error(`No tile definition found for tileId: ${tileId}`);
+                return;
+              }
+              newTile = this.tilePrefabs.spawn(t2.prefab);
+            } else {
+              return;
             }
           }
           newTile.addComponent(TileData, { tileId });
@@ -33357,6 +33276,40 @@
   };
   __publicField(TileInteraction, "TypeName", "tile-interaction");
 
+  // js/components/tile-materials.ts
+  var tile_materials_exports = {};
+  __export(tile_materials_exports, {
+    TileMaterials: () => TileMaterials
+  });
+  var TileMaterials = class extends Component3 {
+    fireMaterial;
+    waterMaterial;
+    earthMaterial;
+    airMaterial;
+    spiritMaterial;
+    slices;
+    start() {
+    }
+    setMaterials(types) {
+    }
+  };
+  __publicField(TileMaterials, "TypeName", "tile-materials");
+  __decorateClass([
+    property.material()
+  ], TileMaterials.prototype, "fireMaterial", 2);
+  __decorateClass([
+    property.material()
+  ], TileMaterials.prototype, "waterMaterial", 2);
+  __decorateClass([
+    property.material()
+  ], TileMaterials.prototype, "earthMaterial", 2);
+  __decorateClass([
+    property.material()
+  ], TileMaterials.prototype, "airMaterial", 2);
+  __decorateClass([
+    property.material()
+  ], TileMaterials.prototype, "spiritMaterial", 2);
+
   // js/components/tile-preview.ts
   var tile_preview_exports = {};
   __export(tile_preview_exports, {
@@ -33443,15 +33396,6 @@
   __decorateClass([
     property.object({ required: true })
   ], TilePreview.prototype, "tilePrefabsObject", 2);
-
-  // js/types/GameRulesConfig.ts
-  var GameRulesConfig_exports = {};
-
-  // js/types/ScoringConfig.ts
-  var ScoringConfig_exports = {};
-
-  // js/types/TimingConfig.ts
-  var TimingConfig_exports = {};
 
   // js/ui/GameServicesProvider.tsx
   var GameServicesProvider_exports = {};
@@ -36974,66 +36918,49 @@
   var import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
   var MainMenu = () => {
     const vm = useMenuViewModel();
-    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Row, { gap: 10, width: 1e3, height: 200, justifyContent: Justify.Center, alignItems: Align.Center, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
-      Panel,
-      {
-        onClick: vm.play,
-        marginLeft: 90,
-        height: 100,
-        width: 100,
-        rounding: 1,
-        backgroundColor: colorSwatch.MainButton,
-        children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { fontSize: 16, children: "Play" })
-      }
-    ) });
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Column, { gap: 10, width: 1e3, height: 1e3, justifyContent: Justify.Center, alignItems: Align.Center, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { fontSize: 32, color: colorSwatch.Text, children: "-=[ Element Weaver ]=-" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+        Panel,
+        {
+          onClick: vm.play,
+          height: 100,
+          width: 100,
+          rounding: 1,
+          backgroundColor: colorSwatch.MainButton,
+          justifyContent: Justify.Center,
+          alignItems: Align.Center,
+          children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { fontSize: 16, children: "Play" })
+        }
+      )
+    ] });
   };
 
   // js/ui/root-ui.tsx
   var root_ui_exports = {};
   __export(root_ui_exports, {
-    RootUI: () => RootUI
+    MainMenuRootUI: () => MainMenuRootUI
   });
 
-  // js/ui/hooks/useSignalValue.ts
+  // js/ui/utils/menu-theme-context.ts
   var import_react14 = __toESM(require_react(), 1);
+  var import_react15 = __toESM(require_react(), 1);
+  var MenuThemeContext = (0, import_react15.createContext)(
+    null
+  );
+
+  // js/ui/hooks/useSignalValue.ts
+  var import_react16 = __toESM(require_react(), 1);
   function useSignalValue(signal) {
-    const [value, setValue] = (0, import_react14.useState)(signal.value);
-    (0, import_react14.useEffect)(() => {
+    const [value, setValue] = (0, import_react16.useState)(signal.value);
+    (0, import_react16.useEffect)(() => {
       return signal.subscribe(setValue);
     }, [signal]);
     return value;
   }
 
-  // js/ui/components/hud/useHudViewModel.ts
-  function useHudViewModel() {
-    const scoreService2 = useScoreService();
-    const score = useSignalValue(scoreService2.score);
-    const multiplier = useSignalValue(scoreService2.multiplier);
-    return {
-      score,
-      multiplier
-    };
-  }
-
-  // js/ui/components/hud/hud.tsx
-  var import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
-  var Hud = () => {
-    const vm = useHudViewModel();
-    return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(Column, { gap: 10, width: 1e3, height: 200, justifyContent: Justify.Center, alignItems: Align.Center, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Text, { color: colorSwatch.Text, fontSize: 24, text: `Score: ${formatNumber(vm.score)}` }),
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Text, { color: colorSwatch.Text, fontSize: 24, text: `Multiplier: ${formatNumber(vm.multiplier)}` })
-    ] });
-  };
-
-  // js/ui/utils/menu-theme-context.ts
-  var import_react15 = __toESM(require_react(), 1);
-  var import_react16 = __toESM(require_react(), 1);
-  var MenuThemeContext = (0, import_react16.createContext)(
-    null
-  );
-
   // js/ui/root-ui.tsx
-  var import_jsx_runtime9 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
   var App = (props) => {
     const gameFlowService2 = useGameFlowService();
     const gameState = useSignalValue(gameFlowService2.gameState);
@@ -37054,17 +36981,25 @@
       }
     };
     const comp = props.comp;
-    return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(MaterialContext.Provider, { value: comp, children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(MenuThemeContext.Provider, { value: DefaultTheme, children: /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(Container, { width: 1e3, height: 200, justifyContent: Justify.Center, alignItems: Align.Center, children: [
-      gameState === "menu" /* Menu */ && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(MainMenu, {}),
-      gameState === "playing" /* Playing */ && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Hud, {})
-    ] }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(MaterialContext.Provider, { value: comp, children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(MenuThemeContext.Provider, { value: DefaultTheme, children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Container, { width: 1e3, height: 1e3, justifyContent: Justify.Center, alignItems: Align.Center, children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(MainMenu, {}) }) }) });
   };
-  var RootUI = class extends ReactUiBase {
+  var MainMenuRootUI = class extends ReactUiBase {
+    async start() {
+      gameFlowService.gameState.subscribe((state) => {
+        if (state === "menu" /* Menu */) {
+          wlUtils.setActive(this.object, true);
+        } else {
+          wlUtils.setActive(this.object, false);
+        }
+      });
+      return super.start();
+    }
     update(dt) {
       super.update();
     }
+    //TK: Somehow add an event listener or something to completely disable this UI component when needed.
     render() {
-      return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
         GameServicesProvider,
         {
           services: {
@@ -37072,13 +37007,13 @@
             gamePlayService,
             scoreService
           },
-          children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(App, { comp: this })
+          children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(App, { comp: this })
         }
       );
     }
   };
-  __publicField(RootUI, "TypeName", "root-ui");
-  __publicField(RootUI, "InheritProperties", true);
+  __publicField(MainMenuRootUI, "TypeName", "main-menu-root-ui");
+  __publicField(MainMenuRootUI, "InheritProperties", true);
 
   // cache/tiles/js/_editor_index.js
   _registerEditor(dist_exports);
@@ -37092,9 +37027,6 @@
   _registerEditor(tile_materials_exports);
   _registerEditor(tile_prefabs_exports);
   _registerEditor(tile_preview_exports);
-  _registerEditor(GameRulesConfig_exports);
-  _registerEditor(ScoringConfig_exports);
-  _registerEditor(TimingConfig_exports);
   _registerEditor(GameServicesProvider_exports);
   _registerEditor(mainMenu_exports);
   _registerEditor(useMenuViewModel_exports);

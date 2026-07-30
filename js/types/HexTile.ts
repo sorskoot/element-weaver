@@ -1,19 +1,16 @@
 import {Six} from './Six.ts';
+
 export type TileId = string;
 
-export interface Axial {
-  q: number;
-  r: number;
-}
-
 export interface TileDefinition {
-  id: TileId;
-  name: string;
+    id: TileId;
+    name: string;
+    prefab: string;
 }
 
 export interface WeightedTile {
-  id: TileId;
-  weight: number;
+    id: TileId;
+    weight: number;
 }
 
 type HexTileBase = {
@@ -23,7 +20,8 @@ type HexTileBase = {
 
 export type HexTilePiece = HexTileBase & {
     type: TileType.piece;
-    readonly elements: Six<TileElementType>;
+    //readonly elements: Six<TileElementType>;
+    tileId: TileId;
     rotation: number;
 };
 
@@ -45,6 +43,3 @@ export enum TileElementType {
     air = 'air',
     spirit = 'spirit',
 }
-
-
-

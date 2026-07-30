@@ -9,6 +9,8 @@ import {TileData} from './tile-data.ts';
 import {TileMaterials} from './tile-materials.ts';
 import {quat} from 'gl-matrix';
 import {EWUtils} from '../utils/EWUtils.ts';
+import {NATURE_TILES} from '../config/TileDefinitions.ts';
+import {TileId} from '../types/HexTile.ts';
 
 const tempQuat = quat.create();
 
@@ -61,7 +63,7 @@ export class HexGrid extends Component {
         this.hexTiles.clear();
     };
 
-    private onTilesChanged = (changedTileIds: string[]) => {
+    private onTilesChanged = (changedTileIds: TileId[]) => {
         for (const tileId of changedTileIds) {
             // currently the only changes that are possible is that it's either a new tiles,
             // or a placeholder tile that is replaced by a normal one. If we have a tile with an ID
@@ -80,11 +82,19 @@ export class HexGrid extends Component {
                 if (tile.type === 'placeholder') {
                     newTile = this.tilePrefabs.spawn('Placeholder')!;
                 } else {
-                    newTile = this.tilePrefabs.spawn('Tile')!;
                     const tileData = this.gamePlayService.getTileDataById(tileId);
                     if (tileData && tileData.type === 'piece') {
-                        newTile.getComponent(TileMaterials)!.setMaterials(tileData.elements);
+                        const t = NATURE_TILES.find((nt) => nt.id === tileData.tileId);
+                        if (!t) {
+                            console.error(`No tile definition found for tileId: ${tileId}`);
+                            return;
+                        }
+                        newTile = this.tilePrefabs.spawn(t.prefab)!;
+                    } else {
+                        return;
                     }
+                    //     newTile.getComponent(TileMaterials)!.setMaterials(tileData.elements);
+                    // }
                 }
                 newTile.addComponent(TileData, {tileId: tileId});
                 newTile.resetPosition();

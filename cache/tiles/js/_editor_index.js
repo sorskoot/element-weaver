@@ -20,12 +20,6 @@ import * as _C__dev_element_weaver_js_components_tile_prefabs_ts from 'C:/dev/el
 _registerEditor(_C__dev_element_weaver_js_components_tile_prefabs_ts);
 import * as _C__dev_element_weaver_js_components_tile_preview_ts from 'C:/dev/element-weaver/js/components/tile-preview.ts';
 _registerEditor(_C__dev_element_weaver_js_components_tile_preview_ts);
-import * as _C__dev_element_weaver_js_types_GameRulesConfig_ts from 'C:/dev/element-weaver/js/types/GameRulesConfig.ts';
-_registerEditor(_C__dev_element_weaver_js_types_GameRulesConfig_ts);
-import * as _C__dev_element_weaver_js_types_ScoringConfig_ts from 'C:/dev/element-weaver/js/types/ScoringConfig.ts';
-_registerEditor(_C__dev_element_weaver_js_types_ScoringConfig_ts);
-import * as _C__dev_element_weaver_js_types_TimingConfig_ts from 'C:/dev/element-weaver/js/types/TimingConfig.ts';
-_registerEditor(_C__dev_element_weaver_js_types_TimingConfig_ts);
 import * as _C__dev_element_weaver_js_ui_GameServicesProvider_tsx from 'C:/dev/element-weaver/js/ui/GameServicesProvider.tsx';
 _registerEditor(_C__dev_element_weaver_js_ui_GameServicesProvider_tsx);
 import * as _C__dev_element_weaver_js_ui_components_main_menu_mainMenu_tsx from 'C:/dev/element-weaver/js/ui/components/main-menu/mainMenu.tsx';

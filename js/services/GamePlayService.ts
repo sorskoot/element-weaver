@@ -1,6 +1,6 @@
 import {HexagonTile} from '../classes/HexagonTile.ts';
 import {IGameModel} from '../models/GameModel.ts';
-import {HexTileElements, HexTilePiece, TileType} from '../types/HexTile.ts';
+import {HexTileElements, HexTilePiece, TileId, TileType} from '../types/HexTile.ts';
 import {EventEmitter} from '../utils/Events.ts';
 import {IElementDistributionService} from './ElementDistributionService.ts';
 import {IScoreService} from './ScoreService.ts';
@@ -33,14 +33,14 @@ export interface IGamePlayService {
      * Event emitted when tiles are added, removed or changed in the grid.
      * The event provides an array of tile IDs that have changed.
      */
-    onTilesChanged: EventEmitter<[string[]]>;
+    onTilesChanged: EventEmitter<[TileId[]]>;
 
     onTilePreviewChanged: EventEmitter<[HexTilePiece]>;
 }
 
 export class GamePlayService implements IGamePlayService {
     onNewGame = new EventEmitter<[]>();
-    onTilesChanged = new EventEmitter<[string[]]>();
+    onTilesChanged = new EventEmitter<[TileId[]]>();
     onTilePreviewChanged = new EventEmitter<[HexTilePiece]>();
 
     private nextTile?: HexTilePiece;
@@ -61,7 +61,8 @@ export class GamePlayService implements IGamePlayService {
         const addedTileId = this.gameModel.addTile(0, 0, 0, {
             id: '0,0,0',
             type: TileType.piece,
-            elements: this.elementDistributionService.createRandomElementDistribution(false),
+            tileId: 'mushroom',
+            //elements: this.elementDistributionService.createRandomElementDistribution(false),
             rotation: 0,
         });
         changedTileIds.push(addedTileId);
@@ -81,7 +82,7 @@ export class GamePlayService implements IGamePlayService {
         this.nextTile = {
             id: `next-tile-preview-${Date.now()}`,
             type: TileType.piece,
-            elements: tileData,
+            tileId: 'mushroom',
             rotation: 0,
         };
         this.onTilePreviewChanged.emit(this.nextTile);
@@ -124,14 +125,14 @@ export class GamePlayService implements IGamePlayService {
     placeTile(tile: HexagonTile): void {
         const existingTile = this.gameModel.getTileById(tile.id);
         if (existingTile && existingTile.type === TileType.placeholder) {
-            const rotatedElements = this.elementDistributionService.rotateElements(
-                this.nextTile!.elements,
-                this.nextTile!.rotation
-            );
+            // const rotatedElements = this.elementDistributionService.rotateElements(
+            //     this.nextTile!.elements,
+            //     this.nextTile!.rotation
+            // );
             this.gameModel.addTile(tile.x, tile.y, tile.z, {
                 id: `${tile.x},${tile.y},${tile.z}`,
                 type: TileType.piece,
-                elements: rotatedElements,
+                tileId: 'mushroom',
                 rotation: 0,
             });
             this.checkMatches(tile.id);
@@ -168,38 +169,36 @@ export class GamePlayService implements IGamePlayService {
     }
 
     private checkMatches(tileId: string): void {
-        const placedTile = this.gameModel.getTileById(tileId);
-        if (!placedTile || placedTile.type !== TileType.piece) {
-            return;
-        }
-
-        const placedTileData = this.gameModel.getTileDataById(placedTile.id);
-        if (!placedTileData || placedTileData.type !== TileType.piece) {
-            return;
-        }
-
-        const neighbors = placedTile.neighbors();
-        let spirit = false;
-        const matchingNeighbors: HexagonTile[] = [];
-        for (let i = 0; i < 6; i++) {
-            const neighbor = neighbors[i];
-            const neighborTile = this.gameModel.getTileAt(neighbor.x, neighbor.y, neighbor.z);
-            if (neighborTile && neighborTile.type === TileType.piece) {
-                const neighborTileData = this.gameModel.getTileDataById(neighborTile.id);
-                if (neighborTileData && placedTileData && neighborTileData.type === TileType.piece) {
-                    const placedElement = placedTileData.elements[i];
-                    const neighborElement = neighborTileData.elements[(i + 3) % 6];
-                    if (placedElement === neighborElement) {
-                        matchingNeighbors.push(neighborTile);
-                    } else if (placedElement === 'spirit' || neighborElement === 'spirit') {
-                        // TODO: Track special case.
-                        spirit = true;
-                        // matchingNeighbors.push(neighborTile);
-                    }
-                }
-            }
-        }
-        this.scoreService.addScore(matchingNeighbors.length, spirit);
-        console.log(`Matching neighbors:`, matchingNeighbors.length);
+        // const placedTile = this.gameModel.getTileById(tileId);
+        // if (!placedTile || placedTile.type !== TileType.piece) {
+        //     return;
+        // }
+        // const placedTileData = this.gameModel.getTileDataById(placedTile.id);
+        // if (!placedTileData || placedTileData.type !== TileType.piece) {
+        //     return;
+        // }
+        // const neighbors = placedTile.neighbors();
+        // let spirit = false;
+        // const matchingNeighbors: HexagonTile[] = [];
+        // for (let i = 0; i < 6; i++) {
+        //     const neighbor = neighbors[i];
+        //     const neighborTile = this.gameModel.getTileAt(neighbor.x, neighbor.y, neighbor.z);
+        //     if (neighborTile && neighborTile.type === TileType.piece) {
+        //         const neighborTileData = this.gameModel.getTileDataById(neighborTile.id);
+        //         if (neighborTileData && placedTileData && neighborTileData.type === TileType.piece) {
+        //             const placedElement = placedTileData.elements[i];
+        //             const neighborElement = neighborTileData.elements[(i + 3) % 6];
+        //             if (placedElement === neighborElement) {
+        //                 matchingNeighbors.push(neighborTile);
+        //             } else if (placedElement === 'spirit' || neighborElement === 'spirit') {
+        //                 // TODO: Track special case.
+        //                 spirit = true;
+        //                 // matchingNeighbors.push(neighborTile);
+        //             }
+        //         }
+        //     }
+        // }
+        // this.scoreService.addScore(matchingNeighbors.length, spirit);
+        // console.log(`Matching neighbors:`, matchingNeighbors.length);
     }
 }

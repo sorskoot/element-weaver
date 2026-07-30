@@ -26,7 +26,7 @@ import {TileInteraction} from './components/tile-interaction.js';
 import {TileMaterials} from './components/tile-materials.js';
 import {TilePrefabs} from './components/tile-prefabs.js';
 import {TilePreview} from './components/tile-preview.js';
-import {RootUI} from './ui/root-ui.tsx';
+import {MainMenuRootUI} from './ui/root-ui.tsx';
 /* wle:auto-imports:end */
 
 export default function (engine: WonderlandEngine) {
@@ -46,6 +46,6 @@ engine.registerComponent(TileInteraction);
 engine.registerComponent(TileMaterials);
 engine.registerComponent(TilePrefabs);
 engine.registerComponent(TilePreview);
-engine.registerComponent(RootUI);
+engine.registerComponent(MainMenuRootUI);
 /* wle:auto-register:end */
 }

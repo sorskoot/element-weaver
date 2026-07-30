@@ -1,5 +1,5 @@
 import {Align, Justify, ReactUiBase} from '@wonderlandengine/react-ui';
-import {Container, MaterialContext} from '@wonderlandengine/react-ui/components';
+import {Panel, MaterialContext, Container} from '@wonderlandengine/react-ui/components';
 import {Hud} from './components/hud/hud.tsx';
 import {MenuThemeContext, MenuThemeContextValue} from './utils/menu-theme-context.js';
 import {colorSwatch} from './utils/colorSwatch.ts';
@@ -8,8 +8,9 @@ import {GameServicesProvider, useGameFlowService} from './GameServicesProvider.t
 import {gameFlowService, gamePlayService, scoreService} from '../bootstrap-services.ts';
 import {MainMenu} from './components/main-menu/mainMenu.tsx';
 import {GameState} from '../services/GameFlowService.ts';
+import {wlUtils} from '@sorskoot/wonderland-components';
 
-const App = (props: {comp: RootUI}) => {
+const App = (props: {comp: MainMenuRootUI}) => {
     const gameFlowService = useGameFlowService();
 
     const gameState = useSignalValue(gameFlowService.gameState);
@@ -36,9 +37,9 @@ const App = (props: {comp: RootUI}) => {
     return (
         <MaterialContext.Provider value={comp}>
             <MenuThemeContext.Provider value={DefaultTheme}>
-                <Container width={1000} height={200} justifyContent={Justify.Center} alignItems={Align.Center}>
-                    {gameState === GameState.Menu && <MainMenu />}
-                    {gameState === GameState.Playing && <Hud />}
+                <Container width={1000} height={1000} justifyContent={Justify.Center} alignItems={Align.Center}>
+                    <MainMenu />
+                    {/* {gameState === GameState.Playing && <Hud />} */}
                     {/* {gameState === GameState.Playing && <Ingame />} */}
                 </Container>
             </MenuThemeContext.Provider>
@@ -46,13 +47,26 @@ const App = (props: {comp: RootUI}) => {
     );
 };
 
-export class RootUI extends ReactUiBase {
-    static TypeName = 'root-ui';
+export class MainMenuRootUI extends ReactUiBase {
+    static TypeName = 'main-menu-root-ui';
     static InheritProperties = true;
+
+    override async start() {
+        gameFlowService.gameState.subscribe((state) => {
+            if (state === GameState.Menu) {
+                wlUtils.setActive(this.object, true);
+            } else {
+                wlUtils.setActive(this.object, false);
+            }
+        });
+        return super.start();
+    }
 
     override update(dt: number) {
         super.update();
     }
+
+    //TK: Somehow add an event listener or something to completely disable this UI component when needed.
 
     render() {
         return (

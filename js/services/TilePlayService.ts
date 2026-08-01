@@ -1,12 +1,11 @@
-import {IGamePlayService} from './GamePlayService.ts';
-import {ITileInteractionService} from './TileInteractionService.ts';
+import {GamePlayService} from './GamePlayService.ts';
+import {TileInteractionService} from './TileInteractionService.ts';
 
-export interface ITilePlayService {}
 
-export class TilePlayService implements ITilePlayService {
+export class TilePlayService {
     constructor(
-        private gamePlayService: IGamePlayService,
-        private tileInteractionService: ITileInteractionService
+        private gamePlayService: GamePlayService,
+        private tileInteractionService: TileInteractionService
     ) {
         this.tileInteractionService.onTileClick.add(this.onTileClick);
     }

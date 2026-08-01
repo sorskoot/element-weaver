@@ -2,7 +2,7 @@ import {rng} from '@sorskoot/wonderland-components';
 import {TileElementType} from '../types/HexTile.ts';
 import {Six} from '../types/Six.ts';
 
-export interface IElementDistributionService {
+export class ElementDistributionService{
     /**
      * Generates a random distribution of tile elements for a hexagonal tile.
      * Rules:
@@ -13,17 +13,6 @@ export interface IElementDistributionService {
      * @returns An array of 6 TileElementType values representing the elements of the tile.
      * @param addSpirit Optional boolean to determine if the spirit element can be included in the distribution. Defaults to true.
      */
-    createRandomElementDistribution(addSpirit?: boolean): Six<TileElementType>;
-
-    /**
-     * Shifts the elements of a hexagonal tile based on the specified rotation.
-     * @param elements The current distribution of tile elements.
-     * @param rotation The number of positions to shift the elements clockwise.
-     */
-    rotateElements(elements: Six<TileElementType>, rotation: number): Six<TileElementType>;
-}
-
-export class ElementDistributionService implements IElementDistributionService {
     createRandomElementDistribution(addSpirit: boolean = true): Six<TileElementType> {
         const elements: TileElementType[] = [];
 
@@ -52,7 +41,11 @@ export class ElementDistributionService implements IElementDistributionService {
         }
         return elements as Six<TileElementType>;
     }
-
+    /**
+     * Shifts the elements of a hexagonal tile based on the specified rotation.
+     * @param elements The current distribution of tile elements.
+     * @param rotation The number of positions to shift the elements clockwise.
+     */
     rotateElements(elements: Six<TileElementType>, rotation: number): Six<TileElementType> {
         const rotatedElements: TileElementType[] = [];
         for (let i = 0; i < 6; i++) {

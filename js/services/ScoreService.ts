@@ -1,13 +1,6 @@
 import {ReadonlySignal, signal} from '@preact/signals-core';
 
-export interface IScoreService {
-    score: ReadonlySignal<number>;
-    multiplier: ReadonlySignal<number>;
-
-    addScore(matchedTiles: number, spirit: boolean): void;
-}
-
-export class ScoreService implements IScoreService {
+export class ScoreService{
     score = signal(0);
     multiplier = signal(1);
 

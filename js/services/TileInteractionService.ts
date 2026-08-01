@@ -1,26 +1,15 @@
 import {ReadonlySignal, Signal, signal} from '@preact/signals-core';
 import {HexagonTile} from '../classes/HexagonTile.ts';
 import {EventEmitter} from '../utils/Events.ts';
-import {IGamePlayService} from './GamePlayService.ts';
+import {GamePlayService} from './GamePlayService.ts';
 
-export interface ITileInteractionService {
-    onTileHover: EventEmitter<[string, {x: number; y: number}, HexagonTile]>;
-    onTileClick: EventEmitter<[string, {x: number; y: number}, HexagonTile]>;
-    onTileUnhover: EventEmitter<[string]>;
-    emitTileHover(tileId: string): void;
-    emitTileClick(tileId: string): void;
-    emitTileUnhover(tileId: string): void;
-
-    currentHoveredTile: ReadonlySignal<HexagonTile | null>;
-}
-
-export class TileInteractionService implements ITileInteractionService {
+export class TileInteractionService {
     onTileHover = new EventEmitter<[string, {x: number; y: number}, HexagonTile]>();
     onTileClick = new EventEmitter<[string, {x: number; y: number}, HexagonTile]>();
     onTileUnhover = new EventEmitter<[string]>();
     currentHoveredTile: Signal<HexagonTile | null> = signal(null);
 
-    constructor(private gamePlayService: IGamePlayService) {}
+    constructor(private gamePlayService: GamePlayService) {}
 
     emitTileHover(tileId: string): void {
         const tile = this.gamePlayService.getTile(tileId);

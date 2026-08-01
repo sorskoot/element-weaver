@@ -6,7 +6,7 @@
     "type": "module",
     "module": "js/index.js",
     "scripts": {
-        "build": "echo \"The 'build' script is run by the editor and should produce your application bundle\""
+        "pack-assets": "assetpack"
     },
     "keywords": [
         "wonderland-engine"

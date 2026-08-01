@@ -1,2 +1,2 @@
-export interface IConfigModel {}
-export class ConfigModel implements IConfigModel {}
+
+export class ConfigModel {}

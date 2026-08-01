@@ -3,8 +3,7 @@ import {property} from '@wonderlandengine/api/decorators.js';
 import {TilePrefabs} from './tile-prefabs.ts';
 import {SelfDestruct, wlUtils} from '@sorskoot/wonderland-components';
 import {serviceLocator} from '../utils/ServiceLocator.ts';
-import {Services} from '../bootstrap-services.ts';
-import {IGamePlayService} from '../services/GamePlayService.ts';
+import {GamePlayService} from '../services/GamePlayService.ts';
 import {TileData} from './tile-data.ts';
 import {TileMaterials} from './tile-materials.ts';
 import {quat} from 'gl-matrix';
@@ -26,8 +25,8 @@ export class HexGrid extends Component {
     declare public tilePrefabsObject: Object3D;
     declare private tilePrefabs: TilePrefabs;
 
-    private get gamePlayService(): IGamePlayService {
-        return serviceLocator.get<IGamePlayService>(Services.gamePlayService);
+    private get gamePlayService(): GamePlayService {
+        return serviceLocator.get<GamePlayService>(GamePlayService);
     }
 
     private hexTiles: Map<string, Object3D> = new Map();

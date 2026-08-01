@@ -31972,7 +31972,6 @@
   // js/bootstrap-services.ts
   var bootstrap_services_exports = {};
   __export(bootstrap_services_exports, {
-    Services: () => Services,
     configService: () => configService,
     elementDistributionService: () => elementDistributionService,
     gameFlowService: () => gameFlowService,
@@ -31982,6 +31981,82 @@
     tileInteractionService: () => tileInteractionService,
     tilePlayService: () => tilePlayService
   });
+
+  // js/services/DominoService.ts
+  var DominoService = class {
+    constructor(rulesService2) {
+      this.rulesService = rulesService2;
+    }
+    id = 1;
+    nextPiece() {
+      const first = this.pickTile();
+      const second = rng.getUniform() < this.rulesService.doubleChance ? first : this.pickTile();
+      return {
+        id: this.id,
+        first,
+        second,
+        direction: rng.getUniformInt(0, 5)
+      };
+    }
+    pickTile() {
+      const total = this.rulesService.tilePool.reduce((sum, entry) => sum + entry.weight, 0);
+      let cursor = rng.getUniform() * total;
+      for (const entry of this.rulesService.tilePool) {
+        cursor -= entry.weight;
+        if (cursor <= 0) {
+          return entry.id;
+        }
+      }
+      return this.rulesService.tilePool[this.rulesService.tilePool.length - 1].id;
+    }
+  };
+
+  // js/config/TileDefinitions.ts
+  var NATURE_TILES = [
+    { id: "mushroom", name: "mushroom", prefab: "Tile_Mushroom" },
+    { id: "leaf", name: "leaf", prefab: "Tile_Leaf" },
+    { id: "raindrop", name: "raindrop", prefab: "Tile_Raindrop" },
+    { id: "sunflower", name: "sunflower", prefab: "Tile_Sunflower" },
+    { id: "berry", name: "berry", prefab: "Tile_Berry" },
+    { id: "acorn", name: "acorn", prefab: "Tile_Acorn" },
+    { id: "pine-cone", name: "pine cone", prefab: "Tile_Pinecone" },
+    { id: "feather", name: "feather", prefab: "Tile_Feather" }
+  ];
+
+  // js/config/StandardGameRules.ts
+  var standardRules = {
+    matchSize: 3,
+    doubleChance: 0.24,
+    tilePool: NATURE_TILES.map((tile) => ({ id: tile.id, weight: 1 })),
+    scoring: {
+      placement: 10,
+      perMatchedTile: 20,
+      largeMatchStartsAt: 5,
+      largeMatchBonusPerTile: 50,
+      clearBoardBonus: 300
+    },
+    timing: {
+      placementLockMs: 160,
+      matchBaseLockMs: 380,
+      matchComboLockMs: 200,
+      maxMatchLockMs: 900,
+      gameOverDelayMs: 1e3
+    }
+  };
+
+  // js/services/RulesService.ts
+  var RulesService = class {
+    rules;
+    get doubleChance() {
+      return this.rules.doubleChance;
+    }
+    get tilePool() {
+      return this.rules.tilePool;
+    }
+    constructor() {
+      this.rules = standardRules;
+    }
+  };
 
   // js/utils/ServiceLocator.ts
   var ServiceLocator2 = class {
@@ -32272,6 +32347,12 @@
     }
   };
 
+  // js/services/GamePlayService.ts
+  var GamePlayService_exports = {};
+  __export(GamePlayService_exports, {
+    GamePlayService: () => GamePlayService
+  });
+
   // js/utils/Events.ts
   var EventEmitter = class {
     listeners = [];
@@ -32346,15 +32427,19 @@
 
   // js/services/GamePlayService.ts
   var GamePlayService = class {
-    constructor(elementDistributionService2, scoreService2, gameModel2) {
-      this.elementDistributionService = elementDistributionService2;
+    constructor(dominoService2, scoreService2, gameModel2) {
+      this.dominoService = dominoService2;
       this.scoreService = scoreService2;
       this.gameModel = gameModel2;
+      this.currentPiece = dominoService2.nextPiece();
+      this.nextPiece = dominoService2.nextPiece();
     }
     onNewGame = new EventEmitter();
     onTilesChanged = new EventEmitter();
     onTilePreviewChanged = new EventEmitter();
-    nextTile;
+    //private nextTile?: HexTilePiece;
+    currentPiece;
+    nextPiece;
     newGame() {
       console.log("Starting a new game...");
       this.gameModel.clearGrid();
@@ -32362,27 +32447,16 @@
       const changedTileIds = [];
       const addedTileId = this.gameModel.addTile(0, 0, 0, {
         id: "0,0,0",
-        type: "piece" /* piece */,
-        tileId: "mushroom",
-        //elements: this.elementDistributionService.createRandomElementDistribution(false),
-        rotation: 0
+        type: "placeholder" /* placeholder */
       });
       changedTileIds.push(addedTileId);
       changedTileIds.push(...this.surroundWithPlaceholders());
       changedTileIds.push(...this.surroundWithPlaceholders());
       changedTileIds.push(...this.surroundWithPlaceholders());
       this.onTilesChanged.emit(changedTileIds);
-      this.createNextTilePreview();
-    }
-    createNextTilePreview() {
-      const tileData = this.elementDistributionService.createRandomElementDistribution();
-      this.nextTile = {
-        id: `next-tile-preview-${Date.now()}`,
-        type: "piece" /* piece */,
-        tileId: "mushroom",
-        rotation: 0
-      };
-      this.onTilePreviewChanged.emit(this.nextTile);
+      this.currentPiece = this.dominoService.nextPiece();
+      this.nextPiece = this.dominoService.nextPiece();
+      this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece);
     }
     /**
      * Surrounds all piece tiles with placeholder tiles if empty spots exist.
@@ -32415,32 +32489,23 @@
         this.gameModel.addTile(tile.x, tile.y, tile.z, {
           id: `${tile.x},${tile.y},${tile.z}`,
           type: "piece" /* piece */,
-          tileId: "mushroom",
+          tileId: NATURE_TILES[rng.getUniformInt(0, NATURE_TILES.length - 1)].id,
           rotation: 0
         });
         this.checkMatches(tile.id);
         const changedTileIds = [tile.id];
         this.onTilesChanged.emit(changedTileIds);
-        this.createNextTilePreview();
+        this.currentPiece = this.nextPiece;
+        this.nextPiece = this.dominoService.nextPiece();
+        this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece);
       }
     }
     getTileDataById(tileId) {
       return this.gameModel.getTileDataById(tileId);
     }
-    getNextTile() {
-      return this.nextTile;
-    }
     rotatePreviewTileCounterClockwise() {
-      if (this.nextTile && this.nextTile.type === "piece" /* piece */) {
-        this.nextTile.rotation = (this.nextTile.rotation + 5) % 6;
-        this.onTilePreviewChanged.emit(this.nextTile);
-      }
     }
     rotatePreviewTileClockwise() {
-      if (this.nextTile && this.nextTile.type === "piece" /* piece */) {
-        this.nextTile.rotation = (this.nextTile.rotation + 1) % 6;
-        this.onTilePreviewChanged.emit(this.nextTile);
-      }
     }
     checkMatches(tileId) {
     }
@@ -32924,6 +32989,16 @@
 
   // js/services/ElementDistributionService.ts
   var ElementDistributionService = class {
+    /**
+     * Generates a random distribution of tile elements for a hexagonal tile.
+     * Rules:
+     * - Each tile consists of 6 elements.
+     * - there's a 22% chance for the normal elements (fire, water, earth, air) to be selected
+     * - there's a 11% chance for the spirit element to be selected
+     * - there can be only one spirit element per tile
+     * @returns An array of 6 TileElementType values representing the elements of the tile.
+     * @param addSpirit Optional boolean to determine if the spirit element can be included in the distribution. Defaults to true.
+     */
     createRandomElementDistribution(addSpirit = true) {
       const elements = [];
       const availableElements = [
@@ -32948,6 +33023,11 @@
       }
       return elements;
     }
+    /**
+     * Shifts the elements of a hexagonal tile based on the specified rotation.
+     * @param elements The current distribution of tile elements.
+     * @param rotation The number of positions to shift the elements clockwise.
+     */
     rotateElements(elements, rotation) {
       const rotatedElements = [];
       for (let i2 = 0; i2 < 6; i2++) {
@@ -32988,36 +33068,29 @@
   };
 
   // js/bootstrap-services.ts
-  var Services = {
-    configService: Symbol("ConfigService"),
-    gamePlayService: Symbol("GamePlayService"),
-    gameFlowService: Symbol("GameFlowService"),
-    tileInteractionService: Symbol("TileInteractionService"),
-    tilePlayService: Symbol("TilePlayService"),
-    elementDistributionService: Symbol("ElementDistributionService"),
-    scoreService: Symbol("ScoreService"),
-    configModel: Symbol("ConfigModel"),
-    gameModel: Symbol("GameModel")
-  };
   var gameModel = new GameModel();
   var configModel = new ConfigModel();
   var configService = new ConfigService(configModel);
   var elementDistributionService = new ElementDistributionService();
   var scoreService = new ScoreService();
-  var gamePlayService = new GamePlayService(elementDistributionService, scoreService, gameModel);
+  var rulesService = new RulesService();
+  var dominoService = new DominoService(rulesService);
+  var gamePlayService = new GamePlayService(dominoService, scoreService, gameModel);
   var gameFlowService = new GameFlowService(gamePlayService);
   var tileInteractionService = new TileInteractionService(gamePlayService);
   var tilePlayService = new TilePlayService(gamePlayService, tileInteractionService);
   function registerServices() {
-    serviceLocator.registerSingleton(Services.configModel, configModel);
-    serviceLocator.registerSingleton(Services.gameModel, gameModel);
-    serviceLocator.registerSingleton(Services.configService, configService);
-    serviceLocator.registerSingleton(Services.gamePlayService, gamePlayService);
-    serviceLocator.registerSingleton(Services.gameFlowService, gameFlowService);
-    serviceLocator.registerSingleton(Services.tileInteractionService, tileInteractionService);
-    serviceLocator.registerSingleton(Services.tilePlayService, tilePlayService);
-    serviceLocator.registerSingleton(Services.elementDistributionService, elementDistributionService);
-    serviceLocator.registerSingleton(Services.scoreService, scoreService);
+    serviceLocator.registerSingleton(ConfigModel, configModel);
+    serviceLocator.registerSingleton(GameModel, gameModel);
+    serviceLocator.registerSingleton(ConfigService, configService);
+    serviceLocator.registerSingleton(GamePlayService, gamePlayService);
+    serviceLocator.registerSingleton(GameFlowService, gameFlowService);
+    serviceLocator.registerSingleton(TileInteractionService, tileInteractionService);
+    serviceLocator.registerSingleton(TilePlayService, tilePlayService);
+    serviceLocator.registerSingleton(ElementDistributionService, elementDistributionService);
+    serviceLocator.registerSingleton(ScoreService, scoreService);
+    serviceLocator.registerSingleton(RulesService, rulesService);
+    serviceLocator.registerSingleton(DominoService, dominoService);
   }
 
   // js/components/hex-grid.ts
@@ -33052,18 +33125,6 @@
     property.string()
   ], TileData.prototype, "tileId", 2);
 
-  // js/config/TileDefinitions.ts
-  var NATURE_TILES = [
-    { id: "mushroom", name: "mushroom", prefab: "Tile_Mushroom" },
-    { id: "leaf", name: "leaf", prefab: "Tile_Leaf" },
-    { id: "raindrop", name: "raindrop", prefab: "Tile_Raindrop" },
-    { id: "sunflower", name: "sunflower", prefab: "Tile_Sunflower" },
-    { id: "berry", name: "berry", prefab: "Tile_Berry" },
-    { id: "acorn", name: "acorn", prefab: "Tile_Acorn" },
-    { id: "pine-cone", name: "pine cone", prefab: "Tile_Pinecone" },
-    { id: "feather", name: "feather", prefab: "Tile_Feather" }
-  ];
-
   // js/components/hex-grid.ts
   var tempQuat5 = quat_exports.create();
   var HexGrid = class extends Component3 {
@@ -33072,7 +33133,7 @@
       engine.registerComponent(SelfDestruct);
     }
     get gamePlayService() {
-      return serviceLocator.get(Services.gamePlayService);
+      return serviceLocator.get(GamePlayService);
     }
     hexTiles = /* @__PURE__ */ new Map();
     init() {
@@ -33146,7 +33207,7 @@
   var InputHelper = class extends Component3 {
     //TODO: Implement a way to switch between left and right controller for rotating the tile preview.
     get gamePlayService() {
-      return serviceLocator.get(Services.gamePlayService);
+      return serviceLocator.get(GamePlayService);
     }
     leftControllerObject;
     rightControllerObject;
@@ -33224,7 +33285,7 @@
   var TileInteraction = class extends Component3 {
     cursorTarget;
     get tileInteractionService() {
-      return serviceLocator.get(Services.tileInteractionService);
+      return serviceLocator.get(TileInteractionService);
     }
     start() {
       this.cursorTarget = this.object.getComponent(CursorTarget);
@@ -33310,6 +33371,72 @@
     property.material()
   ], TileMaterials.prototype, "spiritMaterial", 2);
 
+  // js/components/tile-preview-next.ts
+  var tile_preview_next_exports = {};
+  __export(tile_preview_next_exports, {
+    TilePreviewNext: () => TilePreviewNext
+  });
+  var tempQuat6 = quat_exports.create();
+  var TilePreviewNext = class extends Component3 {
+    previewTileObject;
+    previewMaterials;
+    get gamePlayService() {
+      return serviceLocator.get(GamePlayService);
+    }
+    defaultScale = [1, 1, 1];
+    currentPos = vec3_exports.create();
+    start() {
+      this.tilePrefabs = this.tilePrefabsObject.getComponent(TilePrefabs);
+    }
+    onActivate() {
+      this.gamePlayService.onTilePreviewChanged.add(this.onTilePreviewChanged);
+    }
+    onDeactivate() {
+      this.gamePlayService.onTilePreviewChanged.remove(this.onTilePreviewChanged);
+    }
+    // private v = 0;
+    // update(dt: number) {
+    //     if (!this.previewTileObject) {
+    //         return;
+    //     }
+    //     this.currentPos[1] = Math.sin(this.v * 10) * 0.05 + 0.2;
+    //     this.previewTileObject!.setPositionLocal(this.currentPos);
+    //     this.v += dt;
+    // }
+    onTilePreviewChanged = (currentPiece, nextPiece) => {
+      if (this.object.childrenCount > 0) {
+        let children = [...this.object.children];
+        children.forEach((child) => {
+          if (!child.isDestroyed) {
+            child.destroy();
+          }
+        });
+      }
+      const t2 = NATURE_TILES.find((nt) => nt.id === nextPiece.first);
+      const tile1 = this.tilePrefabs.spawn(t2.prefab);
+      tile1.resetPosition();
+      tile1.parent = this.object;
+      const t22 = NATURE_TILES.find((nt) => nt.id === nextPiece.second);
+      const tile2 = this.tilePrefabs.spawn(t22.prefab);
+      tile2.resetPosition();
+      const x2D = 0.9 * Math.sqrt(3) * (1 + -1 / 2);
+      const y2D = 0.9 * (3 / 2) * -1;
+      tile2.translateLocal([x2D, 0, y2D]);
+      tile2.parent = this.object;
+    };
+    createPreviewTileObject() {
+      this.previewTileObject = this.tilePrefabs.spawn("Tile");
+      this.previewMaterials = this.previewTileObject.getComponent(TileMaterials);
+      this.previewTileObject.resetPosition();
+      this.previewTileObject.parent = this.object;
+      this.previewTileObject.setScalingWorld([0, 0, 0]);
+    }
+  };
+  __publicField(TilePreviewNext, "TypeName", "tile-preview-next");
+  __decorateClass([
+    property.object({ required: true })
+  ], TilePreviewNext.prototype, "tilePrefabsObject", 2);
+
   // js/components/tile-preview.ts
   var tile_preview_exports = {};
   __export(tile_preview_exports, {
@@ -33325,15 +33452,15 @@
   };
 
   // js/components/tile-preview.ts
-  var tempQuat6 = quat_exports.create();
+  var tempQuat7 = quat_exports.create();
   var TilePreview = class extends Component3 {
     previewTileObject;
     previewMaterials;
     get gamePlayService() {
-      return serviceLocator.get(Services.gamePlayService);
+      return serviceLocator.get(GamePlayService);
     }
     get tileInteractionService() {
-      return serviceLocator.get(Services.tileInteractionService);
+      return serviceLocator.get(TileInteractionService);
     }
     defaultScale = [1, 1, 1];
     currentPos = vec3_exports.create();
@@ -33361,14 +33488,13 @@
       this.previewTileObject.setPositionLocal(this.currentPos);
       this.v += dt;
     }
-    onTilePreviewChanged = (tileData) => {
+    onTilePreviewChanged = (currentPiece, nextPiece) => {
       if (!this.previewTileObject) {
         this.createPreviewTileObject();
       }
-      this.previewMaterials?.setMaterials(tileData.elements);
-      const rotation = EWUtils.rotationToDegrees(tileData.rotation);
-      quat_exports.fromEuler(tempQuat6, 0, rotation, 0);
-      this.previewTileObject.setRotationLocal(tempQuat6);
+      const rotation = EWUtils.rotationToDegrees(currentPiece.direction);
+      quat_exports.fromEuler(tempQuat7, 0, rotation, 0);
+      this.previewTileObject.setRotationLocal(tempQuat7);
     };
     onTileHover = (tileId, tilePos) => {
       if (!this.previewTileObject) {
@@ -37026,7 +37152,9 @@
   _registerEditor(tile_interaction_exports);
   _registerEditor(tile_materials_exports);
   _registerEditor(tile_prefabs_exports);
+  _registerEditor(tile_preview_next_exports);
   _registerEditor(tile_preview_exports);
+  _registerEditor(GamePlayService_exports);
   _registerEditor(GameServicesProvider_exports);
   _registerEditor(mainMenu_exports);
   _registerEditor(useMenuViewModel_exports);

@@ -1,6 +1,5 @@
-import {IConfigModel} from '../models/ConfigModel.ts';
+import {ConfigModel} from '../models/ConfigModel.ts';
 
-export interface IConfigService {}
-export class ConfigService implements IConfigService {
-    constructor(private configModel: IConfigModel) {}
+export class ConfigService {
+    constructor(private configModel: ConfigModel) {}
 }

@@ -111,3 +111,6 @@ imgui.ini
 .editor
 *.zip
 dist_bak
+
+processed/
+.assetpack

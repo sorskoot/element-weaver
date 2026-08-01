@@ -1,12 +1,12 @@
 import {Component, Object3D} from '@wonderlandengine/api';
 import {property} from '@wonderlandengine/api/decorators.js';
-import {Services} from '../bootstrap-services.ts';
-import {IGamePlayService} from '../services/GamePlayService.ts';
+import {GamePlayService} from '../services/GamePlayService.ts';
+import {DominoPiece} from '../types/DominoPiece.ts';
 import {serviceLocator} from '../utils/ServiceLocator.ts';
 import {HexTileElements, HexTilePiece} from '../types/HexTile.ts';
 import {TilePrefabs} from './tile-prefabs.ts';
 import {TileMaterials} from './tile-materials.ts';
-import {ITileInteractionService} from '../services/TileInteractionService.ts';
+import {TileInteractionService} from '../services/TileInteractionService.ts';
 import {quat, vec3} from 'gl-matrix';
 import {EWUtils} from '../utils/EWUtils.ts';
 import {Mathf} from '@sorskoot/wonderland-components';
@@ -24,11 +24,11 @@ export class TilePreview extends Component {
     private previewMaterials?: TileMaterials;
 
     private get gamePlayService() {
-        return serviceLocator.get<IGamePlayService>(Services.gamePlayService);
+        return serviceLocator.get<GamePlayService>(GamePlayService);
     }
 
     private get tileInteractionService() {
-        return serviceLocator.get<ITileInteractionService>(Services.tileInteractionService);
+        return serviceLocator.get<TileInteractionService>(TileInteractionService);
     }
 
     private readonly defaultScale = [1, 1, 1];
@@ -62,12 +62,12 @@ export class TilePreview extends Component {
         this.v += dt;
     }
 
-    private onTilePreviewChanged = (tileData: HexTilePiece) => {
+    private onTilePreviewChanged = (currentPiece: DominoPiece, nextPiece: DominoPiece) => {
         if (!this.previewTileObject) {
             this.createPreviewTileObject();
         }
-        this.previewMaterials?.setMaterials(tileData.elements);
-        const rotation = EWUtils.rotationToDegrees(tileData.rotation);
+        //this.previewMaterials?.setMaterials(tileData.);
+        const rotation = EWUtils.rotationToDegrees(currentPiece.direction);
         quat.fromEuler(tempQuat, 0, rotation, 0);
         this.previewTileObject!.setRotationLocal(tempQuat);
     };

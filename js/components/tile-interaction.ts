@@ -3,15 +3,14 @@ import {property} from '@wonderlandengine/api/decorators.js';
 import {CursorTarget} from '@wonderlandengine/components';
 import {TileData} from './tile-data.ts';
 import {serviceLocator} from '../utils/ServiceLocator.ts';
-import {Services} from '../bootstrap-services.ts';
-import {ITileInteractionService} from '../services/TileInteractionService.ts';
+import {TileInteractionService} from '../services/TileInteractionService.ts';
 
 export class TileInteraction extends Component {
     static TypeName = 'tile-interaction';
 
     private cursorTarget?: CursorTarget | null;
     private get tileInteractionService() {
-        return serviceLocator.get<ITileInteractionService>(Services.tileInteractionService);
+        return serviceLocator.get<TileInteractionService>(TileInteractionService);
     }
 
     start() {

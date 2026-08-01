@@ -9,12 +9,7 @@ export enum GameState {
     GameOver = 'game-over',
 }
 
-export interface IGameFlowService {
-    gameState: ReadonlySignal<GameState>;
-    startGame(): void;
-}
-
-export class GameFlowService implements IGameFlowService {
+export class GameFlowService {
     gameState = signal<GameState>(GameState.Menu);
     constructor(private gamePlayService: IGamePlayService) {}
 

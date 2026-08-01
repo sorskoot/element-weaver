@@ -1,8 +1,7 @@
 import {Component, InputComponent, Object3D} from '@wonderlandengine/api';
 import {property} from '@wonderlandengine/api/decorators.js';
 import {serviceLocator} from '../utils/ServiceLocator.ts';
-import {IGamePlayService} from '../services/GamePlayService.ts';
-import {Services} from '../bootstrap-services.ts';
+import {GamePlayService} from '../services/GamePlayService.ts';
 import {vec3} from 'gl-matrix';
 
 export class InputHelper extends Component {
@@ -11,7 +10,7 @@ export class InputHelper extends Component {
     //TODO: Implement a way to switch between left and right controller for rotating the tile preview.
 
     private get gamePlayService() {
-        return serviceLocator.get<IGamePlayService>(Services.gamePlayService);
+        return serviceLocator.get<GamePlayService>(GamePlayService);
     }
 
     @property.object({required: true})

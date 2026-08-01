@@ -18,6 +18,8 @@ import * as _C__dev_element_weaver_js_components_tile_materials_ts from 'C:/dev/
 _registerEditor(_C__dev_element_weaver_js_components_tile_materials_ts);
 import * as _C__dev_element_weaver_js_components_tile_prefabs_ts from 'C:/dev/element-weaver/js/components/tile-prefabs.ts';
 _registerEditor(_C__dev_element_weaver_js_components_tile_prefabs_ts);
+import * as _C__dev_element_weaver_js_components_tile_preview_next_ts from 'C:/dev/element-weaver/js/components/tile-preview-next.ts';
+_registerEditor(_C__dev_element_weaver_js_components_tile_preview_next_ts);
 import * as _C__dev_element_weaver_js_components_tile_preview_ts from 'C:/dev/element-weaver/js/components/tile-preview.ts';
 _registerEditor(_C__dev_element_weaver_js_components_tile_preview_ts);
 import * as _C__dev_element_weaver_js_ui_GameServicesProvider_tsx from 'C:/dev/element-weaver/js/ui/GameServicesProvider.tsx';

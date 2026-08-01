@@ -1,18 +1,24 @@
 export type ServiceFactory<T> = () => T;
+/**
+ * Constructor type used as a token for the Service Locator.
+ *
+ * Use the concrete class constructor when registering or requesting services.
+ */
+type Constructor<T> = new (...args: any[]) => T;
 
 export class ServiceLocator {
-    private readonly services = new Map<symbol, unknown>();
-    private readonly factories = new Map<symbol, ServiceFactory<unknown>>();
+    private readonly services = new Map<Constructor<any>, any>();
+    private readonly factories = new Map<Constructor<any>, ServiceFactory<unknown>>();
 
-    registerSingleton<T>(key: symbol, instance: T): void {
+    registerSingleton<T>(key: Constructor<T>, instance: T): void {
         this.services.set(key, instance);
     }
 
-    registerTransient<T>(key: symbol, factory: ServiceFactory<T>): void {
+    registerTransient<T>(key: Constructor<T>, factory: ServiceFactory<T>): void {
         this.factories.set(key, factory);
     }
 
-    get<T>(key: symbol): T {
+    get<T>(key: Constructor<T>): T {
         const factory = this.factories.get(key);
 
         if (factory) {

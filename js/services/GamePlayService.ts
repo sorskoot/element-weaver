@@ -1,55 +1,31 @@
+import {rng} from '@sorskoot/wonderland-components';
 import {HexagonTile} from '../classes/HexagonTile.ts';
-import {IGameModel} from '../models/GameModel.ts';
+import {NATURE_TILES} from '../config/TileDefinitions.ts';
+import {GameModel} from '../models/GameModel.ts';
+import {DominoPiece} from '../types/DominoPiece.ts';
 import {HexTileElements, HexTilePiece, TileId, TileType} from '../types/HexTile.ts';
 import {EventEmitter} from '../utils/Events.ts';
-import {IElementDistributionService} from './ElementDistributionService.ts';
-import {IScoreService} from './ScoreService.ts';
+import {DominoService} from './DominoService.ts';
+import {ElementDistributionService} from './ElementDistributionService.ts';
+import {ScoreService} from './ScoreService.ts';
 
-export interface IGamePlayService {
-    /**
-     * Starts a new game by clearing the grid and initializing it with a randomized tile and surrounding placeholder tiles.
-     * Emits the onNewGame event and the onTilesChanged event with the IDs of the changed tiles.
-     */
-    newGame(): void;
-
-    getTile(tileId: string): HexagonTile | undefined;
-
-    placeTile(tile: HexagonTile): void;
-
-    getTileDataById(tileId: string): HexTileElements | undefined;
-
-    rotatePreviewTileCounterClockwise(): void;
-
-    rotatePreviewTileClockwise(): void;
-
-    getNextTile(): HexTilePiece | undefined;
-
-    /**
-     * Event emitted when a new game is started.
-     */
-    onNewGame: EventEmitter<[]>;
-
-    /**
-     * Event emitted when tiles are added, removed or changed in the grid.
-     * The event provides an array of tile IDs that have changed.
-     */
-    onTilesChanged: EventEmitter<[TileId[]]>;
-
-    onTilePreviewChanged: EventEmitter<[HexTilePiece]>;
-}
-
-export class GamePlayService implements IGamePlayService {
+export class GamePlayService {
     onNewGame = new EventEmitter<[]>();
     onTilesChanged = new EventEmitter<[TileId[]]>();
-    onTilePreviewChanged = new EventEmitter<[HexTilePiece]>();
+    onTilePreviewChanged = new EventEmitter<[DominoPiece,DominoPiece]>();
 
-    private nextTile?: HexTilePiece;
+    //private nextTile?: HexTilePiece;
+    private currentPiece: DominoPiece;
+    private nextPiece: DominoPiece;
 
     constructor(
-        private elementDistributionService: IElementDistributionService,
-        private scoreService: IScoreService,
-        private gameModel: IGameModel
-    ) {}
+        private dominoService: DominoService,
+        private scoreService: ScoreService,
+        private gameModel: GameModel
+    ) {
+        this.currentPiece = dominoService.nextPiece();
+        this.nextPiece = dominoService.nextPiece();
+    }
 
     newGame(): void {
         console.log('Starting a new game...');
@@ -57,13 +33,10 @@ export class GamePlayService implements IGamePlayService {
         this.onNewGame.emit();
 
         const changedTileIds: string[] = [];
-        // Add a randomized tile to the center of the grid
+        // Add a placeholder tile to the center of the grid
         const addedTileId = this.gameModel.addTile(0, 0, 0, {
             id: '0,0,0',
-            type: TileType.piece,
-            tileId: 'mushroom',
-            //elements: this.elementDistributionService.createRandomElementDistribution(false),
-            rotation: 0,
+            type: TileType.placeholder
         });
         changedTileIds.push(addedTileId);
 
@@ -74,18 +47,10 @@ export class GamePlayService implements IGamePlayService {
 
         this.onTilesChanged.emit(changedTileIds);
 
-        this.createNextTilePreview();
-    }
-
-    createNextTilePreview(): void {
-        const tileData = this.elementDistributionService.createRandomElementDistribution();
-        this.nextTile = {
-            id: `next-tile-preview-${Date.now()}`,
-            type: TileType.piece,
-            tileId: 'mushroom',
-            rotation: 0,
-        };
-        this.onTilePreviewChanged.emit(this.nextTile);
+        //this.createNextTilePreview();
+        this.currentPiece = this.dominoService.nextPiece();
+        this.nextPiece = this.dominoService.nextPiece();
+        this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece)
     }
 
     /**
@@ -132,7 +97,7 @@ export class GamePlayService implements IGamePlayService {
             this.gameModel.addTile(tile.x, tile.y, tile.z, {
                 id: `${tile.x},${tile.y},${tile.z}`,
                 type: TileType.piece,
-                tileId: 'mushroom',
+                tileId: NATURE_TILES[rng.getUniformInt(0,NATURE_TILES.length-1)].id,
                 rotation: 0,
             });
             this.checkMatches(tile.id);
@@ -142,7 +107,9 @@ export class GamePlayService implements IGamePlayService {
             // changedTileIds.push(...addedPlaceholderIds);
             this.onTilesChanged.emit(changedTileIds);
 
-            this.createNextTilePreview();
+            this.currentPiece = this.nextPiece;
+            this.nextPiece = this.dominoService.nextPiece();
+            this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece)
         }
     }
 
@@ -150,22 +117,19 @@ export class GamePlayService implements IGamePlayService {
         return this.gameModel.getTileDataById(tileId);
     }
 
-    getNextTile(): HexTilePiece | undefined {
-        return this.nextTile;
-    }
 
     rotatePreviewTileCounterClockwise(): void {
-        if (this.nextTile && this.nextTile.type === TileType.piece) {
-            this.nextTile.rotation = (this.nextTile.rotation + 5) % 6;
-            this.onTilePreviewChanged.emit(this.nextTile);
-        }
+        // if (this.nextTile && this.nextTile.type === TileType.piece) {
+        //     this.nextTile.rotation = (this.nextTile.rotation + 5) % 6;
+        //     this.onTilePreviewChanged.emit(this.nextTile);
+        // }
     }
 
     rotatePreviewTileClockwise(): void {
-        if (this.nextTile && this.nextTile.type === TileType.piece) {
-            this.nextTile.rotation = (this.nextTile.rotation + 1) % 6;
-            this.onTilePreviewChanged.emit(this.nextTile);
-        }
+        // if (this.nextTile && this.nextTile.type === TileType.piece) {
+        //     this.nextTile.rotation = (this.nextTile.rotation + 1) % 6;
+        //     this.onTilePreviewChanged.emit(this.nextTile);
+        // }
     }
 
     private checkMatches(tileId: string): void {

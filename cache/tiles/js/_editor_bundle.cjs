@@ -32306,9 +32306,11 @@
   // js/models/GameModel.ts
   var GameModel = class {
     grid;
+    placeholderGrid;
     tileData = /* @__PURE__ */ new Map();
     constructor() {
       this.grid = new HexagonGrid();
+      this.placeholderGrid = new HexagonGrid();
     }
     clearGrid() {
       this.grid.clear();
@@ -32317,14 +32319,25 @@
     getAllTiles() {
       return this.grid.getAllTiles();
     }
+    getAllPlaceholderTiles() {
+      return this.placeholderGrid.getAllTiles();
+    }
     getTileAt(x2, y2, z) {
       return this.grid.getTile(x2, y2, z);
     }
     getTileById(tileId) {
       return this.grid.getTileById(tileId);
     }
+    getPlaceholderById(tileId) {
+      return this.placeholderGrid.getTileById(tileId);
+    }
     getTileDataById(tileId) {
       return this.tileData.get(tileId);
+    }
+    addPlaceholderTile(x2, y2, z) {
+      const newTile = new HexagonTile(x2, y2, z, "placeholder" /* placeholder */);
+      this.placeholderGrid.addTile(newTile);
+      return newTile.id;
     }
     addTile(x2, y2, z, elements) {
       const newTile = new HexagonTile(x2, y2, z, elements.type);
@@ -32333,6 +32346,12 @@
         this.tileData.set(newTile.id, elements);
       }
       return newTile.id;
+    }
+    removeTile(tileId) {
+      const tile = this.grid.getTileById(tileId);
+      if (tile) {
+        this.tileData.delete(tileId);
+      }
     }
   };
 
@@ -32346,12 +32365,6 @@
       this.configModel = configModel2;
     }
   };
-
-  // js/services/GamePlayService.ts
-  var GamePlayService_exports = {};
-  __export(GamePlayService_exports, {
-    GamePlayService: () => GamePlayService
-  });
 
   // js/utils/Events.ts
   var EventEmitter = class {
@@ -32437,6 +32450,7 @@
     onNewGame = new EventEmitter();
     onTilesChanged = new EventEmitter();
     onTilePreviewChanged = new EventEmitter();
+    onPlaceholdersUpdated = new EventEmitter();
     //private nextTile?: HexTilePiece;
     currentPiece;
     nextPiece;
@@ -32445,40 +32459,34 @@
       this.gameModel.clearGrid();
       this.onNewGame.emit();
       const changedTileIds = [];
-      const addedTileId = this.gameModel.addTile(0, 0, 0, {
-        id: "0,0,0",
-        type: "placeholder" /* placeholder */
-      });
+      const addedTileId = this.gameModel.addPlaceholderTile(0, 0, 0);
       changedTileIds.push(addedTileId);
-      changedTileIds.push(...this.surroundWithPlaceholders());
-      changedTileIds.push(...this.surroundWithPlaceholders());
-      changedTileIds.push(...this.surroundWithPlaceholders());
-      this.onTilesChanged.emit(changedTileIds);
+      this.surroundWithPlaceholders();
+      this.surroundWithPlaceholders();
+      this.surroundWithPlaceholders();
+      this.onPlaceholdersUpdated.emit();
       this.currentPiece = this.dominoService.nextPiece();
       this.nextPiece = this.dominoService.nextPiece();
       this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece);
     }
-    /**
+    /**`
      * Surrounds all piece tiles with placeholder tiles if empty spots exist.
      * @returns An array of IDs of the added placeholder tiles.
      */
     surroundWithPlaceholders() {
-      const addedTileIds = [];
-      const allTiles = this.gameModel.getAllTiles();
+      const allTiles = this.gameModel.getAllPlaceholderTiles();
       for (const tile of allTiles) {
         const neighbors = tile.neighbors();
         for (const neighbor of neighbors) {
           const neighborTile = this.gameModel.getTileAt(neighbor.x, neighbor.y, neighbor.z);
           if (!neighborTile) {
-            const addedTileId = this.gameModel.addTile(neighbor.x, neighbor.y, neighbor.z, {
-              id: `${neighbor.x},${neighbor.y},${neighbor.z}`,
-              type: "placeholder" /* placeholder */
-            });
-            addedTileIds.push(addedTileId);
+            this.gameModel.addPlaceholderTile(neighbor.x, neighbor.y, neighbor.z);
           }
         }
       }
-      return addedTileIds;
+    }
+    getAllPlaceholderTiles() {
+      return this.gameModel.getAllPlaceholderTiles();
     }
     getTile(tileId) {
       return this.gameModel.getTileById(tileId);
@@ -33144,6 +33152,7 @@
       return serviceLocator.get(GamePlayService);
     }
     hexTiles = /* @__PURE__ */ new Map();
+    placeholderTiles = /* @__PURE__ */ new Map();
     init() {
       this.tilePrefabs = this.tilePrefabsObject.getComponent(TilePrefabs);
     }
@@ -33152,10 +33161,12 @@
     onActivate() {
       this.gamePlayService.onNewGame.add(this.onNewGame);
       this.gamePlayService.onTilesChanged.add(this.onTilesChanged);
+      this.gamePlayService.onPlaceholdersUpdated.add(this.onPlaceholdersUpdated);
     }
     onDeactivate() {
       this.gamePlayService.onNewGame.remove(this.onNewGame);
       this.gamePlayService.onTilesChanged.remove(this.onTilesChanged);
+      this.gamePlayService.onPlaceholdersUpdated.remove(this.onPlaceholdersUpdated);
     }
     onNewGame = () => {
       this.hexTiles.forEach((tile) => {
@@ -33164,7 +33175,35 @@
         }
       });
       this.hexTiles.clear();
+      this.placeholderTiles.forEach((tile) => {
+        if (tile && !tile.isDestroyed) {
+          tile.destroy();
+        }
+      });
+      this.placeholderTiles.clear();
     };
+    onPlaceholdersUpdated = () => {
+      this.placeholderTiles.forEach((tile) => {
+        if (tile && !tile.isDestroyed) {
+          tile.destroy();
+        }
+      });
+      this.placeholderTiles.clear();
+      const allTiles = this.gamePlayService.getAllPlaceholderTiles();
+      for (const tile of allTiles) {
+        const tileId = tile.id;
+        const newTile = this.tilePrefabs.spawn("Placeholder");
+        newTile.addComponent(TileData, { tileId });
+        newTile.resetPosition();
+        newTile.parent = this.object;
+        const pos = tile.to2D();
+        newTile.setPositionLocal([pos.x, 0, pos.y]);
+        wlUtils.setActive(newTile, true);
+        this.placeholderTiles.set(tileId, newTile);
+      }
+    };
+    //TK: Maybe this should be changed in to tiles that are placed
+    // and tiles that are removed, and a separate event for when the placeholders are changed
     onTilesChanged = (changedTileIds) => {
       for (const tileId of changedTileIds) {
         const existingTile = this.hexTiles.get(tileId);
@@ -37177,7 +37216,6 @@
   _registerEditor(tile_prefabs_exports);
   _registerEditor(tile_preview_next_exports);
   _registerEditor(tile_preview_exports);
-  _registerEditor(GamePlayService_exports);
   _registerEditor(GameServicesProvider_exports);
   _registerEditor(mainMenu_exports);
   _registerEditor(useMenuViewModel_exports);

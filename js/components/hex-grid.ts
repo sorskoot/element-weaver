@@ -30,7 +30,8 @@ export class HexGrid extends Component {
     }
 
     private hexTiles: Map<string, Object3D> = new Map();
-
+    private placeholderTiles: Map<string, Object3D> = new Map();
+    
     init() {
         this.tilePrefabs = this.tilePrefabsObject.getComponent(TilePrefabs)!;
     }
@@ -46,11 +47,13 @@ export class HexGrid extends Component {
     onActivate() {
         this.gamePlayService.onNewGame.add(this.onNewGame);
         this.gamePlayService.onTilesChanged.add(this.onTilesChanged);
+        this.gamePlayService.onPlaceholdersUpdated.add(this.onPlaceholdersUpdated);
     }
 
     onDeactivate() {
         this.gamePlayService.onNewGame.remove(this.onNewGame);
         this.gamePlayService.onTilesChanged.remove(this.onTilesChanged);
+        this.gamePlayService.onPlaceholdersUpdated.remove(this.onPlaceholdersUpdated);
     }
 
     private onNewGame = () => {
@@ -60,9 +63,46 @@ export class HexGrid extends Component {
             }
         });
         this.hexTiles.clear();
+        this.placeholderTiles.forEach((tile) => {
+            if (tile && !tile.isDestroyed) {
+                tile.destroy();
+            }
+        });
+        this.placeholderTiles.clear();
+
+        
     };
 
+    private onPlaceholdersUpdated = () => {
+        // Remove all existing placeholder tiles
+        this.placeholderTiles.forEach((tile) => {
+            if (tile && !tile.isDestroyed) {
+                tile.destroy();
+            }
+        });
+        this.placeholderTiles.clear();
+
+        // Add new placeholder tiles based on the current game state
+        const allTiles = this.gamePlayService.getAllPlaceholderTiles();
+        for (const tile of allTiles) {
+            const tileId = tile.id;
+            const newTile = this.tilePrefabs.spawn('Placeholder')!;
+            newTile.addComponent(TileData, {tileId: tileId});
+            newTile.resetPosition();
+            newTile.parent = this.object;
+            const pos = tile.to2D();
+            newTile.setPositionLocal([pos.x, 0, pos.y]);
+            wlUtils.setActive(newTile, true);
+            this.placeholderTiles.set(tileId, newTile);
+        }
+    };
+
+    //TK: Maybe this should be changed in to tiles that are placed
+    // and tiles that are removed, and a separate event for when the placeholders are changed
+
     private onTilesChanged = (changedTileIds: TileId[]) => {
+
+        // Handle placeholder updates here
         for (const tileId of changedTileIds) {
             // currently the only changes that are possible is that it's either a new tiles,
             // or a placeholder tile that is replaced by a normal one. If we have a tile with an ID

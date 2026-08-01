@@ -13,6 +13,7 @@ export class GamePlayService {
     onNewGame = new EventEmitter<[]>();
     onTilesChanged = new EventEmitter<[TileId[]]>();
     onTilePreviewChanged = new EventEmitter<[DominoPiece,DominoPiece]>();
+    onPlaceholdersUpdated = new EventEmitter<[]>();
 
     //private nextTile?: HexTilePiece;
     private currentPiece: DominoPiece;
@@ -34,18 +35,15 @@ export class GamePlayService {
 
         const changedTileIds: string[] = [];
         // Add a placeholder tile to the center of the grid
-        const addedTileId = this.gameModel.addTile(0, 0, 0, {
-            id: '0,0,0',
-            type: TileType.placeholder
-        });
+        const addedTileId = this.gameModel.addPlaceholderTile(0, 0, 0);
         changedTileIds.push(addedTileId);
 
         // surround the center tile with 6 placeholder tiles
-        changedTileIds.push(...this.surroundWithPlaceholders());
-        changedTileIds.push(...this.surroundWithPlaceholders());
-        changedTileIds.push(...this.surroundWithPlaceholders());
+        this.surroundWithPlaceholders();
+        this.surroundWithPlaceholders();
+        this.surroundWithPlaceholders();
 
-        this.onTilesChanged.emit(changedTileIds);
+        this.onPlaceholdersUpdated.emit();
 
         //this.createNextTilePreview();
         this.currentPiece = this.dominoService.nextPiece();
@@ -53,13 +51,12 @@ export class GamePlayService {
         this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece)
     }
 
-    /**
+    /**`
      * Surrounds all piece tiles with placeholder tiles if empty spots exist.
      * @returns An array of IDs of the added placeholder tiles.
      */
-    private surroundWithPlaceholders(): string[] {
-        const addedTileIds: string[] = [];
-        const allTiles = this.gameModel.getAllTiles();
+    private surroundWithPlaceholders() {
+        const allTiles = this.gameModel.getAllPlaceholderTiles();
         for (const tile of allTiles) {
             const neighbors = tile.neighbors();
             //  if (tile.type === TileType.piece) {
@@ -70,17 +67,16 @@ export class GamePlayService {
                 if (!neighborTile) {
                     // there's an empty spot next to a tile,
                     // so we should add a placeholder tile there
-                    const addedTileId = this.gameModel.addTile(neighbor.x, neighbor.y, neighbor.z, {
-                        id: `${neighbor.x},${neighbor.y},${neighbor.z}`,
-                        type: TileType.placeholder,
-                    });
-
-                    addedTileIds.push(addedTileId);
+                    this.gameModel.addPlaceholderTile(neighbor.x, neighbor.y, neighbor.z);
+                    // addedTileIds.push(addedTileId);
                 }
                 //   }
             }
         }
-        return addedTileIds;
+        //return addedTileIds;
+    }
+    public getAllPlaceholderTiles(): HexagonTile[] {
+        return this.gameModel.getAllPlaceholderTiles();
     }
 
     getTile(tileId: string): HexagonTile | undefined {

@@ -1,7 +1,18 @@
 Element Weaver:
     Overall:
+        ☐ Add check if placement is allowed
+        Complete domino placement logic: 
+            ☐ placement of 2 tiles at once.
+            ☐ Rotation of 2 tiles
+            ☐ Check if placement is allowed
+            ☐ Do not replace placeholders.
+            ~ These need to stay but eventually be invisible.
+            ~ It does mean changing the logic around how tiles are placed since now they are explicitly replaced
         ☐ Create parameter for scale of table and tiles.
         ~ Ideally the tiles would start as a 1:1 scale and then be scaled accordingly to a parameter. Same for the table. Not sure how this would work with the position of the UI. Maybe it should all be 1:1 so the root can be scaled and the rest is relative to that or something.
+        ☐ Add matching of tiles
+        ☐ implement removing of tiles
+        ~ this.grid.removeTile(tile.x, tile.y, tile.z)
 
     AR:
         ☐ Describe AR-mode in the GDD
@@ -27,4 +38,6 @@ Element Weaver:
             ~ Maybe these can share the same baseclass?
             ☐ Title screen - Floating above the play area
             ☐ Score On the table.
-        ☐ Show next domino
+        ✔ Show next domino @done(26-08-01 10:36)
+        ☐ show current domino
+        ☐ Indicate domino is not placable

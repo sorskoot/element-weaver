@@ -2536,7 +2536,7 @@
             "enable": true
         },
         "editor": {
-            "serverPort": 6
+            "serverPort": 6868
         }
     },
     "animations": {},

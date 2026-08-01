@@ -74,8 +74,8 @@ export class TilePreviewNext extends Component {
         const t2 = NATURE_TILES.find((nt) => nt.id === nextPiece.second)!;
         const tile2 = this.tilePrefabs.spawn(t2.prefab)!;
         tile2.resetPosition();
-        const x2D = .9 * Math.sqrt(3) * (1 + -1 / 2);
-        const y2D = .9 * (3 / 2) * -1;
+        const x2D = 1 * Math.sqrt(3) * (1 + -1 / 2);
+        const y2D = 1 * (3 / 2) * -1;
         tile2.translateLocal([x2D,0,y2D])
         tile2.parent = this.object;
         //this.previewMaterials?.setMaterials(tileData.);
@@ -84,11 +84,11 @@ export class TilePreviewNext extends Component {
         // this.previewTileObject!.setRotationLocal(tempQuat);
     };
 
-    private createPreviewTileObject() {
-        this.previewTileObject = this.tilePrefabs.spawn('Tile')!;
-        this.previewMaterials = this.previewTileObject.getComponent(TileMaterials)!;
-        this.previewTileObject.resetPosition();
-        this.previewTileObject.parent = this.object;
-        this.previewTileObject.setScalingWorld([0, 0, 0]);
-    }
+    // private createPreviewTileObject() {
+    //     this.previewTileObject = this.tilePrefabs.spawn('Tile')!;
+    //     this.previewMaterials = this.previewTileObject.getComponent(TileMaterials)!;
+    //     this.previewTileObject.resetPosition();
+    //     this.previewTileObject.parent = this.object;
+    //     this.previewTileObject.setScalingWorld([0, 0, 0]);
+    // }
 }

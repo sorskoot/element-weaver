@@ -94,14 +94,28 @@ export class GamePlayService {
             //     this.nextTile!.elements,
             //     this.nextTile!.rotation
             // );
-            this.gameModel.addTile(tile.x, tile.y, tile.z, {
+            const id1 = this.gameModel.addTile(tile.x, tile.y, tile.z, {
                 id: `${tile.x},${tile.y},${tile.z}`,
                 type: TileType.piece,
-                tileId: NATURE_TILES[rng.getUniformInt(0,NATURE_TILES.length-1)].id,
-                rotation: 0,
+                tileId: this.currentPiece.first,
+                rotation: this.currentPiece.direction,
             });
-            this.checkMatches(tile.id);
-            const changedTileIds: string[] = [tile.id];
+            const x2D = 1 * Math.sqrt(3) * (1 + -1 / 2);
+            const y2D = 1 * (3 / 2) * -1;
+
+            const tile2Pos = tile.neighbors()[0];
+
+
+
+            const id2= this.gameModel.addTile(tile2Pos.x, tile2Pos.y, tile2Pos.z, {
+                id: `${tile2Pos.x},${tile2Pos.y},${tile2Pos.z}`,
+                type: TileType.piece,
+                tileId: this.currentPiece.second,
+                rotation: this.currentPiece.direction,
+            });
+
+            //this.checkMatches(tile.id);
+            const changedTileIds: string[] = [id1,id2];
             // surround the newly placed tile with placeholder tiles if empty spots exist
             //  const addedPlaceholderIds = this.surroundWithPlaceholders();
             // changedTileIds.push(...addedPlaceholderIds);

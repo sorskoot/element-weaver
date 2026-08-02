@@ -12,7 +12,7 @@ export class TileInteractionService {
     constructor(private gamePlayService: GamePlayService) {}
 
     emitTileHover(tileId: string): void {
-        const tile = this.gamePlayService.getTile(tileId);
+        const tile = this.gamePlayService.getPlaceholder(tileId);
         const tilePos = tile?.to2D();
         if (tilePos && tile) {
             this.onTileHover.emit(tileId, tilePos, tile);
@@ -23,7 +23,7 @@ export class TileInteractionService {
     }
 
     emitTileClick(tileId: string): void {
-        const tile = this.gamePlayService.getTile(tileId);
+        const tile = this.gamePlayService.getPlaceholder(tileId);
         const tilePos = tile?.to2D();
         if (tilePos && tile) {
             this.onTileClick.emit(tileId, tilePos, tile);

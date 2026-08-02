@@ -1,5 +1,5 @@
 function rotationToDegrees(rotation: number): number {
-    return rotation * 60;
+    return (6-rotation) * 60;
 }
 
 export const EWUtils = {

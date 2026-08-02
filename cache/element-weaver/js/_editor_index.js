@@ -26,8 +26,12 @@ import * as _C__dev_element_weaver_js_models_GameModel_ts from 'C:/dev/element-w
 _registerEditor(_C__dev_element_weaver_js_models_GameModel_ts);
 import * as _C__dev_element_weaver_js_services_GamePlayService_ts from 'C:/dev/element-weaver/js/services/GamePlayService.ts';
 _registerEditor(_C__dev_element_weaver_js_services_GamePlayService_ts);
+import * as _C__dev_element_weaver_js_services_TileInteractionService_ts from 'C:/dev/element-weaver/js/services/TileInteractionService.ts';
+_registerEditor(_C__dev_element_weaver_js_services_TileInteractionService_ts);
 import * as _C__dev_element_weaver_js_services_TilePlayService_ts from 'C:/dev/element-weaver/js/services/TilePlayService.ts';
 _registerEditor(_C__dev_element_weaver_js_services_TilePlayService_ts);
+import * as _C__dev_element_weaver_js_types_Points_ts from 'C:/dev/element-weaver/js/types/Points.ts';
+_registerEditor(_C__dev_element_weaver_js_types_Points_ts);
 import * as _C__dev_element_weaver_js_ui_GameServicesProvider_tsx from 'C:/dev/element-weaver/js/ui/GameServicesProvider.tsx';
 _registerEditor(_C__dev_element_weaver_js_ui_GameServicesProvider_tsx);
 import * as _C__dev_element_weaver_js_ui_components_main_menu_mainMenu_tsx from 'C:/dev/element-weaver/js/ui/components/main-menu/mainMenu.tsx';
@@ -36,3 +40,5 @@ import * as _C__dev_element_weaver_js_ui_components_main_menu_useMenuViewModel_t
 _registerEditor(_C__dev_element_weaver_js_ui_components_main_menu_useMenuViewModel_ts);
 import * as _C__dev_element_weaver_js_ui_root_ui_tsx from 'C:/dev/element-weaver/js/ui/root-ui.tsx';
 _registerEditor(_C__dev_element_weaver_js_ui_root_ui_tsx);
+import * as _C__dev_element_weaver_js_utils_EWUtils_ts from 'C:/dev/element-weaver/js/utils/EWUtils.ts';
+_registerEditor(_C__dev_element_weaver_js_utils_EWUtils_ts);

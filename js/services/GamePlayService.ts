@@ -4,6 +4,7 @@ import {NATURE_TILES} from '../config/TileDefinitions.ts';
 import {GameModel} from '../models/GameModel.ts';
 import {DominoPiece} from '../types/DominoPiece.ts';
 import {HexTileElements, HexTilePiece, TileId, TileType} from '../types/HexTile.ts';
+import {Point2D, Point3D} from '../types/Points.ts';
 import {EventEmitter} from '../utils/Events.ts';
 import {DominoService} from './DominoService.ts';
 import {ElementDistributionService} from './ElementDistributionService.ts';
@@ -12,6 +13,7 @@ import {ScoreService} from './ScoreService.ts';
 export class GamePlayService {
     onNewGame = new EventEmitter<[]>();
     onTilesChanged = new EventEmitter<[TileId[]]>();
+    onTileRotated = new EventEmitter<[DominoPiece]>();
     onTilePreviewChanged = new EventEmitter<[DominoPiece,DominoPiece]>();
     onPlaceholdersUpdated = new EventEmitter<[]>();
 
@@ -79,13 +81,36 @@ export class GamePlayService {
         return this.gameModel.getAllPlaceholderTiles();
     }
 
+    public getTilePositions(placeHolderId:TileId):[Point2D, Point2D] | undefined {
+        const tile = this.getPlaceholder(placeHolderId);
+        if (!tile) {
+            throw new Error(`Placeholder tile with ID ${placeHolderId} not found.`);
+        }
+        const p2 = tile.neighbors()[this.currentPiece.direction];
+        const tile2 = this.gameModel.getPlaceholderAt(p2.x,p2.y,p2.z);
+        if (!tile2) {
+            return;
+        }
+        return [
+            tile.to2D(),
+            tile2.to2D(),
+        ]
+    }
+
+    getPlaceholder(tileId: string): HexagonTile | undefined {
+        return this.gameModel.getPlaceholderById(tileId);
+    }
+
     getTile(tileId: string): HexagonTile | undefined {
         return this.gameModel.getTileById(tileId);
     }
 
     placeTile(tile: HexagonTile): void {
-        const existingTile = this.gameModel.getTileById(tile.id);
-        if (existingTile && existingTile.type === TileType.placeholder) {
+        // if(!this.canPlace(tile)){
+        //     return;
+        // }
+        // const existingTile = this.gameModel.getTileById(tile.id);
+        // if (existingTile && existingTile.type === TileType.placeholder) {
             // const rotatedElements = this.elementDistributionService.rotateElements(
             //     this.nextTile!.elements,
             //     this.nextTile!.rotation
@@ -96,12 +121,9 @@ export class GamePlayService {
                 tileId: this.currentPiece.first,
                 rotation: this.currentPiece.direction,
             });
-            const x2D = 1 * Math.sqrt(3) * (1 + -1 / 2);
-            const y2D = 1 * (3 / 2) * -1;
 
-            const tile2Pos = tile.neighbors()[0];
-
-
+            //TK: Figure out a way to find which neighbor is with a rotation
+            const tile2Pos = tile.neighbors()[this.currentPiece.direction];
 
             const id2= this.gameModel.addTile(tile2Pos.x, tile2Pos.y, tile2Pos.z, {
                 id: `${tile2Pos.x},${tile2Pos.y},${tile2Pos.z}`,
@@ -120,8 +142,9 @@ export class GamePlayService {
             this.currentPiece = this.nextPiece;
             this.nextPiece = this.dominoService.nextPiece();
             this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece)
-        }
+     //   }
     }
+
 
     getTileDataById(tileId: string): HexTileElements | undefined {
         return this.gameModel.getTileDataById(tileId);
@@ -129,17 +152,17 @@ export class GamePlayService {
 
 
     rotatePreviewTileCounterClockwise(): void {
-        // if (this.nextTile && this.nextTile.type === TileType.piece) {
-        //     this.nextTile.rotation = (this.nextTile.rotation + 5) % 6;
-        //     this.onTilePreviewChanged.emit(this.nextTile);
-        // }
+         if (this.currentPiece) {
+             this.currentPiece.direction = (this.currentPiece.direction + 1) % 6;
+             this.onTileRotated.emit(this.currentPiece);
+         }
     }
 
     rotatePreviewTileClockwise(): void {
-        // if (this.nextTile && this.nextTile.type === TileType.piece) {
-        //     this.nextTile.rotation = (this.nextTile.rotation + 1) % 6;
-        //     this.onTilePreviewChanged.emit(this.nextTile);
-        // }
+         if (this.currentPiece) {
+             this.currentPiece.direction = (this.currentPiece.direction + 5) % 6;
+             this.onTileRotated.emit(this.currentPiece);
+         }
     }
 
     private checkMatches(tileId: string): void {
@@ -174,5 +197,20 @@ export class GamePlayService {
         // }
         // this.scoreService.addScore(matchingNeighbors.length, spirit);
         // console.log(`Matching neighbors:`, matchingNeighbors.length);
+    }
+
+    private canPlace(tile: HexagonTile): boolean {
+        let spot1 = false;
+        let spot2 = false;
+        const existingTile = this.gameModel.getTileAt(tile.x, tile.y, tile.z);
+        if (!existingTile) {
+            spot1 = true;
+        }
+
+        // calculate second tile location
+
+
+
+        return spot1 && spot2;
     }
 }

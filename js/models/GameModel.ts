@@ -30,6 +30,10 @@ export class GameModel {
         return this.grid.getTile(x, y, z);
     }
 
+    getPlaceholderAt(x: number, y: number, z: number): HexagonTile | undefined {
+        return this.placeholderGrid.getTile(x, y, z);
+    }
+
     getTileById(tileId: string): HexagonTile | undefined {
         return this.grid.getTileById(tileId);
     }

@@ -23,6 +23,7 @@ export class TilePreview extends Component {
 
     private previewTileObject1?: Object3D;
     private previewTileObject2?: Object3D;
+    private hoveringTileId?: string | null = null;
 
     private get gamePlayService() {
         return serviceLocator.get<GamePlayService>(GamePlayService);
@@ -42,6 +43,7 @@ export class TilePreview extends Component {
 
     onActivate() {
         this.gamePlayService.onTilePreviewChanged.add(this.onTilePreviewChanged);
+        this.gamePlayService.onTileRotated.add(this.onTileRotated);
         this.tileInteractionService.onTileHover.add(this.onTileHover);
         this.tileInteractionService.onTileClick.add(this.onTileUnhover);
         this.tileInteractionService.onTileUnhover.add(this.onTileUnhover);
@@ -49,6 +51,7 @@ export class TilePreview extends Component {
 
     onDeactivate() {
         this.gamePlayService.onTilePreviewChanged.remove(this.onTilePreviewChanged);
+        this.gamePlayService.onTileRotated.remove(this.onTileRotated);
         this.tileInteractionService.onTileHover.remove(this.onTileHover);
         this.tileInteractionService.onTileClick.remove(this.onTileUnhover);
         this.tileInteractionService.onTileUnhover.remove(this.onTileUnhover);
@@ -90,25 +93,49 @@ export class TilePreview extends Component {
         const rotation = EWUtils.rotationToDegrees(currentPiece.direction);
         quat.fromEuler(tempQuat, 0, rotation, 0);
         this.previewTileObject1!.setRotationLocal(tempQuat);
+        this.previewTileObject2!.setRotationLocal(tempQuat);
     };
 
-    private onTileHover = (tileId: string, tilePos: {x: number; y: number}) => {
-        if (!this.previewTileObject1 || !this.previewTileObject2) {
+    private onTileRotated = (currentPiece: DominoPiece) => {
+        if(!this.hoveringTileId){
+            return;
+        }
+        const pos= this.gamePlayService.getTilePositions(this.hoveringTileId);
+        if(!pos) {
+            // invalid placement
+            return;
+        }
+        this.currentPos2 = [pos[1].x,0.4, pos[1].y];
+        this.previewTileObject2!.setPositionLocal(this.currentPos2);
+        const rotation = EWUtils.rotationToDegrees(currentPiece.direction);
+        quat.fromEuler(tempQuat, 0, rotation, 0);
+        this.previewTileObject1!.setRotationLocal(tempQuat);
+        this.previewTileObject2!.setRotationLocal(tempQuat);
+    }
 
+    private onTileHover = (tileId: string, tilePos: {x: number; y: number}) => {
+        this.hoveringTileId = tileId;
+        if (!this.previewTileObject1 || !this.previewTileObject2) {
             return; // don't show if no preview
         }
-        this.previewTileObject1!.setScalingLocal(this.defaultScale);
-        this.currentPos1 = [tilePos.x, 0.4, tilePos.y];
-        this.previewTileObject1!.setPositionLocal(this.currentPos1);
-        const x2D = 1 * Math.sqrt(3) * (1 + -1 / 2);
-        const y2D = 1 * (3 / 2) * -1;
-        this.currentPos2 = [tilePos.x+x2D, 0.4, tilePos.y+y2D];
+        const pos= this.gamePlayService.getTilePositions(tileId);
+        if(!pos) {
+            // invalid placement
+            return;
+        }
 
+        this.previewTileObject1!.setScalingLocal(this.defaultScale);
+        this.currentPos1 = [pos[0].x, 0.4, pos[0].y];
+        this.previewTileObject1!.setPositionLocal(this.currentPos1);
+        // const x2D = 1 * Math.sqrt(3) * (1 + -1 / 2);
+        // const y2D = 1 * (3 / 2) * -1;
+        this.currentPos2 = [pos[1].x,0.4, pos[1].y];
         this.previewTileObject2!.setPositionLocal(this.currentPos2);
         this.previewTileObject2!.setScalingLocal(this.defaultScale);
     };
 
     private onTileUnhover = (tileId: string) => {
+        this.hoveringTileId = null;
         if (!this.previewTileObject1 || !this.previewTileObject2) {
             return; // don't hide if no preview
         }

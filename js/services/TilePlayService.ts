@@ -1,3 +1,5 @@
+import {TileId} from '../types/HexTile.ts';
+import {Point3D} from '../types/Points.ts';
 import {GamePlayService} from './GamePlayService.ts';
 import {TileInteractionService} from './TileInteractionService.ts';
 
@@ -10,8 +12,8 @@ export class TilePlayService {
         this.tileInteractionService.onTileClick.add(this.onTileClick);
     }
 
-    private onTileClick = (tileId: string): void => {
-        const tile = this.gamePlayService.getTile(tileId);
+    private onTileClick = (tileId: TileId): void => {
+        const tile = this.gamePlayService.getPlaceholder(tileId);
         if (tile) {
             this.gamePlayService.placeTile(tile);
         }

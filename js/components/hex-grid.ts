@@ -129,6 +129,9 @@ export class HexGrid extends Component {
                             return;
                         }
                         newTile = this.tilePrefabs.spawn(t.prefab)!;
+                        const rotation = EWUtils.rotationToDegrees(tileData.rotation);
+                        quat.fromEuler(tempQuat, 0, rotation, 0);
+                        newTile.setRotationLocal(tempQuat);
                     } else {
                         return;
                     }
@@ -136,6 +139,8 @@ export class HexGrid extends Component {
                     // }
                 }
                 newTile.addComponent(TileData, {tileId: tileId});
+
+
                 newTile.resetPosition();
                 newTile.parent = this.object;
                 const pos = tile.to2D();

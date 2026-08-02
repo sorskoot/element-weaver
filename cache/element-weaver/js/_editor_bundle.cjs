@@ -32331,6 +32331,9 @@
     getTileAt(x2, y2, z) {
       return this.grid.getTile(x2, y2, z);
     }
+    getPlaceholderAt(x2, y2, z) {
+      return this.placeholderGrid.getTile(x2, y2, z);
+    }
     getTileById(tileId) {
       return this.grid.getTileById(tileId);
     }
@@ -32461,6 +32464,7 @@
     }
     onNewGame = new EventEmitter();
     onTilesChanged = new EventEmitter();
+    onTileRotated = new EventEmitter();
     onTilePreviewChanged = new EventEmitter();
     onPlaceholdersUpdated = new EventEmitter();
     //private nextTile?: HexTilePiece;
@@ -32500,42 +32504,72 @@
     getAllPlaceholderTiles() {
       return this.gameModel.getAllPlaceholderTiles();
     }
+    getTilePositions(placeHolderId) {
+      const tile = this.getPlaceholder(placeHolderId);
+      if (!tile) {
+        throw new Error(`Placeholder tile with ID ${placeHolderId} not found.`);
+      }
+      const p22 = tile.neighbors()[this.currentPiece.direction];
+      const tile2 = this.gameModel.getPlaceholderAt(p22.x, p22.y, p22.z);
+      if (!tile2) {
+        return;
+      }
+      return [
+        tile.to2D(),
+        tile2.to2D()
+      ];
+    }
+    getPlaceholder(tileId) {
+      return this.gameModel.getPlaceholderById(tileId);
+    }
     getTile(tileId) {
       return this.gameModel.getTileById(tileId);
     }
     placeTile(tile) {
-      const existingTile = this.gameModel.getTileById(tile.id);
-      if (existingTile && existingTile.type === "placeholder" /* placeholder */) {
-        const id1 = this.gameModel.addTile(tile.x, tile.y, tile.z, {
-          id: `${tile.x},${tile.y},${tile.z}`,
-          type: "piece" /* piece */,
-          tileId: this.currentPiece.first,
-          rotation: this.currentPiece.direction
-        });
-        const x2D = 1 * Math.sqrt(3) * (1 + -1 / 2);
-        const y2D = 1 * (3 / 2) * -1;
-        const tile2Pos = tile.neighbors()[0];
-        const id2 = this.gameModel.addTile(tile2Pos.x, tile2Pos.y, tile2Pos.z, {
-          id: `${tile2Pos.x},${tile2Pos.y},${tile2Pos.z}`,
-          type: "piece" /* piece */,
-          tileId: this.currentPiece.second,
-          rotation: this.currentPiece.direction
-        });
-        const changedTileIds = [id1, id2];
-        this.onTilesChanged.emit(changedTileIds);
-        this.currentPiece = this.nextPiece;
-        this.nextPiece = this.dominoService.nextPiece();
-        this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece);
-      }
+      const id1 = this.gameModel.addTile(tile.x, tile.y, tile.z, {
+        id: `${tile.x},${tile.y},${tile.z}`,
+        type: "piece" /* piece */,
+        tileId: this.currentPiece.first,
+        rotation: this.currentPiece.direction
+      });
+      const tile2Pos = tile.neighbors()[this.currentPiece.direction];
+      const id2 = this.gameModel.addTile(tile2Pos.x, tile2Pos.y, tile2Pos.z, {
+        id: `${tile2Pos.x},${tile2Pos.y},${tile2Pos.z}`,
+        type: "piece" /* piece */,
+        tileId: this.currentPiece.second,
+        rotation: this.currentPiece.direction
+      });
+      const changedTileIds = [id1, id2];
+      this.onTilesChanged.emit(changedTileIds);
+      this.currentPiece = this.nextPiece;
+      this.nextPiece = this.dominoService.nextPiece();
+      this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece);
     }
     getTileDataById(tileId) {
       return this.gameModel.getTileDataById(tileId);
     }
     rotatePreviewTileCounterClockwise() {
+      if (this.currentPiece) {
+        this.currentPiece.direction = (this.currentPiece.direction + 1) % 6;
+        this.onTileRotated.emit(this.currentPiece);
+      }
     }
     rotatePreviewTileClockwise() {
+      if (this.currentPiece) {
+        this.currentPiece.direction = (this.currentPiece.direction + 5) % 6;
+        this.onTileRotated.emit(this.currentPiece);
+      }
     }
     checkMatches(tileId) {
+    }
+    canPlace(tile) {
+      let spot1 = false;
+      let spot2 = false;
+      const existingTile = this.gameModel.getTileAt(tile.x, tile.y, tile.z);
+      if (!existingTile) {
+        spot1 = true;
+      }
+      return spot1 && spot2;
     }
   };
 
@@ -32967,6 +33001,10 @@
   };
 
   // js/services/TileInteractionService.ts
+  var TileInteractionService_exports = {};
+  __export(TileInteractionService_exports, {
+    TileInteractionService: () => TileInteractionService
+  });
   var TileInteractionService = class {
     constructor(gamePlayService2) {
       this.gamePlayService = gamePlayService2;
@@ -32976,7 +33014,7 @@
     onTileUnhover = new EventEmitter();
     currentHoveredTile = y(null);
     emitTileHover(tileId) {
-      const tile = this.gamePlayService.getTile(tileId);
+      const tile = this.gamePlayService.getPlaceholder(tileId);
       const tilePos = tile?.to2D();
       if (tilePos && tile) {
         this.onTileHover.emit(tileId, tilePos, tile);
@@ -32986,7 +33024,7 @@
       }
     }
     emitTileClick(tileId) {
-      const tile = this.gamePlayService.getTile(tileId);
+      const tile = this.gamePlayService.getPlaceholder(tileId);
       const tilePos = tile?.to2D();
       if (tilePos && tile) {
         this.onTileClick.emit(tileId, tilePos, tile);
@@ -33012,7 +33050,7 @@
       this.tileInteractionService.onTileClick.add(this.onTileClick);
     }
     onTileClick = (tileId) => {
-      const tile = this.gamePlayService.getTile(tileId);
+      const tile = this.gamePlayService.getPlaceholder(tileId);
       if (tile) {
         this.gamePlayService.placeTile(tile);
       }
@@ -33157,6 +33195,18 @@
     property.string()
   ], TileData.prototype, "tileId", 2);
 
+  // js/utils/EWUtils.ts
+  var EWUtils_exports = {};
+  __export(EWUtils_exports, {
+    EWUtils: () => EWUtils
+  });
+  function rotationToDegrees(rotation) {
+    return (6 - rotation) * 60;
+  }
+  var EWUtils = {
+    rotationToDegrees
+  };
+
   // js/components/hex-grid.ts
   var tempQuat5 = quat_exports.create();
   var HexGrid = class extends Component3 {
@@ -33242,6 +33292,9 @@
                 return;
               }
               newTile = this.tilePrefabs.spawn(t2.prefab);
+              const rotation = EWUtils.rotationToDegrees(tileData.rotation);
+              quat_exports.fromEuler(tempQuat5, 0, rotation, 0);
+              newTile.setRotationLocal(tempQuat5);
             } else {
               return;
             }
@@ -33505,20 +33558,11 @@
   __export(tile_preview_exports, {
     TilePreview: () => TilePreview
   });
-
-  // js/utils/EWUtils.ts
-  function rotationToDegrees(rotation) {
-    return rotation * 60;
-  }
-  var EWUtils = {
-    rotationToDegrees
-  };
-
-  // js/components/tile-preview.ts
   var tempQuat7 = quat_exports.create();
   var TilePreview = class extends Component3 {
     previewTileObject1;
     previewTileObject2;
+    hoveringTileId = null;
     get gamePlayService() {
       return serviceLocator.get(GamePlayService);
     }
@@ -33533,12 +33577,14 @@
     }
     onActivate() {
       this.gamePlayService.onTilePreviewChanged.add(this.onTilePreviewChanged);
+      this.gamePlayService.onTileRotated.add(this.onTileRotated);
       this.tileInteractionService.onTileHover.add(this.onTileHover);
       this.tileInteractionService.onTileClick.add(this.onTileUnhover);
       this.tileInteractionService.onTileUnhover.add(this.onTileUnhover);
     }
     onDeactivate() {
       this.gamePlayService.onTilePreviewChanged.remove(this.onTilePreviewChanged);
+      this.gamePlayService.onTileRotated.remove(this.onTileRotated);
       this.tileInteractionService.onTileHover.remove(this.onTileHover);
       this.tileInteractionService.onTileClick.remove(this.onTileUnhover);
       this.tileInteractionService.onTileUnhover.remove(this.onTileUnhover);
@@ -33574,21 +33620,41 @@
       const rotation = EWUtils.rotationToDegrees(currentPiece.direction);
       quat_exports.fromEuler(tempQuat7, 0, rotation, 0);
       this.previewTileObject1.setRotationLocal(tempQuat7);
+      this.previewTileObject2.setRotationLocal(tempQuat7);
+    };
+    onTileRotated = (currentPiece) => {
+      if (!this.hoveringTileId) {
+        return;
+      }
+      const pos = this.gamePlayService.getTilePositions(this.hoveringTileId);
+      if (!pos) {
+        return;
+      }
+      this.currentPos2 = [pos[1].x, 0.4, pos[1].y];
+      this.previewTileObject2.setPositionLocal(this.currentPos2);
+      const rotation = EWUtils.rotationToDegrees(currentPiece.direction);
+      quat_exports.fromEuler(tempQuat7, 0, rotation, 0);
+      this.previewTileObject1.setRotationLocal(tempQuat7);
+      this.previewTileObject2.setRotationLocal(tempQuat7);
     };
     onTileHover = (tileId, tilePos) => {
+      this.hoveringTileId = tileId;
       if (!this.previewTileObject1 || !this.previewTileObject2) {
         return;
       }
+      const pos = this.gamePlayService.getTilePositions(tileId);
+      if (!pos) {
+        return;
+      }
       this.previewTileObject1.setScalingLocal(this.defaultScale);
-      this.currentPos1 = [tilePos.x, 0.4, tilePos.y];
+      this.currentPos1 = [pos[0].x, 0.4, pos[0].y];
       this.previewTileObject1.setPositionLocal(this.currentPos1);
-      const x2D = 1 * Math.sqrt(3) * (1 + -1 / 2);
-      const y2D = 1 * (3 / 2) * -1;
-      this.currentPos2 = [tilePos.x + x2D, 0.4, tilePos.y + y2D];
+      this.currentPos2 = [pos[1].x, 0.4, pos[1].y];
       this.previewTileObject2.setPositionLocal(this.currentPos2);
       this.previewTileObject2.setScalingLocal(this.defaultScale);
     };
     onTileUnhover = (tileId) => {
+      this.hoveringTileId = null;
       if (!this.previewTileObject1 || !this.previewTileObject2) {
         return;
       }
@@ -33600,6 +33666,26 @@
   __decorateClass([
     property.object({ required: true })
   ], TilePreview.prototype, "tilePrefabsObject", 2);
+
+  // js/types/Points.ts
+  var Points_exports = {};
+  __export(Points_exports, {
+    sumPoint2D: () => sumPoint2D,
+    sumPoint3D: () => sumPoint3D
+  });
+  function sumPoint2D(a2, b2) {
+    return {
+      x: a2.x + b2.x,
+      y: a2.y + b2.y
+    };
+  }
+  function sumPoint3D(a2, b2) {
+    return {
+      x: a2.x + b2.x,
+      y: a2.y + b2.y,
+      z: a2.z + b2.z
+    };
+  }
 
   // js/ui/GameServicesProvider.tsx
   var GameServicesProvider_exports = {};
@@ -37234,11 +37320,14 @@
   _registerEditor(tile_preview_exports);
   _registerEditor(GameModel_exports);
   _registerEditor(GamePlayService_exports);
+  _registerEditor(TileInteractionService_exports);
   _registerEditor(TilePlayService_exports);
+  _registerEditor(Points_exports);
   _registerEditor(GameServicesProvider_exports);
   _registerEditor(mainMenu_exports);
   _registerEditor(useMenuViewModel_exports);
   _registerEditor(root_ui_exports);
+  _registerEditor(EWUtils_exports);
 })();
 /*! Bundled license information:
 

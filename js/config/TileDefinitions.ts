@@ -9,6 +9,15 @@ export const NATURE_TILES: readonly TileDefinition[] = [
     {id: 'acorn', name: 'acorn', prefab: 'Tile_Acorn'},
     {id: 'pine-cone', name: 'pine cone', prefab: 'Tile_Pinecone'},
     {id: 'feather', name: 'feather', prefab: 'Tile_Feather'},
+
+    {id: 'strawberry', name: 'strawberry', prefab: 'Tile_Strawberry'},
+    {id: 'carrot', name: 'carrot', prefab: 'Tile_Carrot'},
+    {id: 'clover', name: 'clover', prefab: 'Tile_Clover'},
+    {id: 'lavender', name: 'lavender', prefab: 'Tile_Lavender'},
+    {id: 'pumpkin', name: 'pumpkin', prefab: 'Tile_Pumpkin'},
+    {id: 'daisy', name: 'daisy', prefab: 'Tile_Daisy'},
+    {id: 'rock', name: 'rock', prefab: 'Tile_Rock'},
+    {id: 'poppy', name: 'poppy', prefab: 'Tile_Poppy'},
 ];
 
 

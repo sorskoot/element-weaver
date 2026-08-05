@@ -64,7 +64,7 @@ export class GameModel {
     public removeTile(tileId: string): void {
         const tile = this.grid.getTileById(tileId);
         if (tile) {
-            //this.grid.removeTile(tile.x, tile.y, tile.z);
+            this.grid.removeTile(tile.x, tile.y, tile.z);
             this.tileData.delete(tileId);
         }
     }

@@ -6,6 +6,8 @@ import * as __wonderlandengine_spatial_audio from '@wonderlandengine/spatial-aud
 _registerEditor(__wonderlandengine_spatial_audio);
 import * as _C__dev_element_weaver_js_bootstrap_services_ts from 'C:/dev/element-weaver/js/bootstrap-services.ts';
 _registerEditor(_C__dev_element_weaver_js_bootstrap_services_ts);
+import * as _C__dev_element_weaver_js_classes_HexGrid_ts from 'C:/dev/element-weaver/js/classes/HexGrid.ts';
+_registerEditor(_C__dev_element_weaver_js_classes_HexGrid_ts);
 import * as _C__dev_element_weaver_js_components_hex_grid_ts from 'C:/dev/element-weaver/js/components/hex-grid.ts';
 _registerEditor(_C__dev_element_weaver_js_components_hex_grid_ts);
 import * as _C__dev_element_weaver_js_components_input_helper_ts from 'C:/dev/element-weaver/js/components/input-helper.ts';
@@ -22,6 +24,10 @@ import * as _C__dev_element_weaver_js_components_tile_preview_next_ts from 'C:/d
 _registerEditor(_C__dev_element_weaver_js_components_tile_preview_next_ts);
 import * as _C__dev_element_weaver_js_components_tile_preview_ts from 'C:/dev/element-weaver/js/components/tile-preview.ts';
 _registerEditor(_C__dev_element_weaver_js_components_tile_preview_ts);
+import * as _C__dev_element_weaver_js_models_GameModel_ts from 'C:/dev/element-weaver/js/models/GameModel.ts';
+_registerEditor(_C__dev_element_weaver_js_models_GameModel_ts);
+import * as _C__dev_element_weaver_js_services_GamePlayService_ts from 'C:/dev/element-weaver/js/services/GamePlayService.ts';
+_registerEditor(_C__dev_element_weaver_js_services_GamePlayService_ts);
 import * as _C__dev_element_weaver_js_ui_GameServicesProvider_tsx from 'C:/dev/element-weaver/js/ui/GameServicesProvider.tsx';
 _registerEditor(_C__dev_element_weaver_js_ui_GameServicesProvider_tsx);
 import * as _C__dev_element_weaver_js_ui_components_main_menu_mainMenu_tsx from 'C:/dev/element-weaver/js/ui/components/main-menu/mainMenu.tsx';

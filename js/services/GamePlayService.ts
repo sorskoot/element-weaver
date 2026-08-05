@@ -2,7 +2,7 @@ import {HexagonTile} from '../classes/HexagonTile.ts';
 import {GameModel} from '../models/GameModel.ts';
 import {DominoPiece} from '../types/DominoPiece.ts';
 import {HexTileElements, TileId, TileType} from '../types/HexTile.ts';
-import {Point2D} from '../types/Points.ts';
+import {Point2D, Point3D} from '../types/Points.ts';
 import {EventEmitter} from '../utils/Events.ts';
 import {DominoService} from './DominoService.ts';
 import {ScoreService} from './ScoreService.ts';
@@ -79,7 +79,7 @@ export class GamePlayService {
         return this.gameModel.getTileById(tileId);
     }
 
-    placeTile(tile: HexagonTile): void {
+    placeTile(tile: HexagonTile): boolean {
         // if(!this.canPlace(tile)){
         //     return;
         // }
@@ -89,15 +89,18 @@ export class GamePlayService {
         //     this.nextTile!.elements,
         //     this.nextTile!.rotation
         // );
+        const tile2Pos = tile.neighbors()[this.currentPiece.direction];
+        if(!this.canPlace({x:tile.x,y:tile.y,z:tile.z}, tile2Pos)){
+            return false;
+        }
+
+
         const id1 = this.gameModel.addTile(tile.x, tile.y, tile.z, {
             id:       `${tile.x},${tile.y},${tile.z}`,
             type:     TileType.piece,
             tileId:   this.currentPiece.first,
             rotation: this.currentPiece.direction,
         });
-
-        //TK: Figure out a way to find which neighbor is with a rotation
-        const tile2Pos = tile.neighbors()[this.currentPiece.direction];
 
         const id2 = this.gameModel.addTile(tile2Pos.x, tile2Pos.y, tile2Pos.z, {
             id:       `${tile2Pos.x},${tile2Pos.y},${tile2Pos.z}`,
@@ -117,7 +120,7 @@ export class GamePlayService {
         this.currentPiece = this.nextPiece;
         this.nextPiece = this.dominoService.nextPiece();
         this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece);
-        //   }
+        return true;
     }
 
     getTileDataById(tileId: string): HexTileElements | undefined {
@@ -242,15 +245,17 @@ export class GamePlayService {
          */
     }
 
-    private canPlace(tile: HexagonTile): boolean {
+    private canPlace(tileA:Point3D,tileB:Point3D): boolean {
         let spot1 = false;
         let spot2 = false;
-        const existingTile = this.gameModel.getTileAt(tile.x, tile.y, tile.z);
-        if (!existingTile) {
+        const existingTileA = this.gameModel.getTileAt(tileA.x, tileA.y, tileA.z);
+        if (!existingTileA) {
             spot1 = true;
         }
-
-        // calculate second tile location
+        const existingTileB = this.gameModel.getTileAt(tileB.x, tileB.y, tileB.z);
+        if (!existingTileB) {
+            spot2 = true;
+        }
 
         return spot1 && spot2;
     }

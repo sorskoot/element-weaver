@@ -72,4 +72,9 @@ export class HexagonGrid implements Cloneable<HexagonGrid> {
     public clear(): void {
         this._tiles.clear();
     }
+
+    public removeTile(x: number, y: number, z: number): void {
+        const key = this.getKey(x, y, z);
+        this._tiles.delete(key);
+    }
 }

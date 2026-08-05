@@ -32082,6 +32082,12 @@
   };
   var serviceLocator = new ServiceLocator2();
 
+  // js/models/GameModel.ts
+  var GameModel_exports = {};
+  __export(GameModel_exports, {
+    GameModel: () => GameModel
+  });
+
   // js/classes/Tags.ts
   var _Tags2 = class {
     _tagList = /* @__PURE__ */ new Map();
@@ -32241,6 +32247,10 @@
   };
 
   // js/classes/HexGrid.ts
+  var HexGrid_exports = {};
+  __export(HexGrid_exports, {
+    HexagonGrid: () => HexagonGrid
+  });
   var HexagonGrid = class {
     /**
      * A map storing hexagon tiles with their unique keys.
@@ -32301,6 +32311,10 @@
     clear() {
       this._tiles.clear();
     }
+    removeTile(x2, y2, z) {
+      const key = this.getKey(x2, y2, z);
+      this._tiles.delete(key);
+    }
   };
 
   // js/models/GameModel.ts
@@ -32324,6 +32338,9 @@
     }
     getTileAt(x2, y2, z) {
       return this.grid.getTile(x2, y2, z);
+    }
+    getPlaceholderAt(x2, y2, z) {
+      return this.placeholderGrid.getTile(x2, y2, z);
     }
     getTileById(tileId) {
       return this.grid.getTileById(tileId);
@@ -32350,6 +32367,7 @@
     removeTile(tileId) {
       const tile = this.grid.getTileById(tileId);
       if (tile) {
+        this.grid.removeTile(tile.x, tile.y, tile.z);
         this.tileData.delete(tileId);
       }
     }
@@ -32365,6 +32383,12 @@
       this.configModel = configModel2;
     }
   };
+
+  // js/services/GamePlayService.ts
+  var GamePlayService_exports = {};
+  __export(GamePlayService_exports, {
+    GamePlayService: () => GamePlayService
+  });
 
   // js/utils/Events.ts
   var EventEmitter = class {
@@ -32449,6 +32473,8 @@
     }
     onNewGame = new EventEmitter();
     onTilesChanged = new EventEmitter();
+    onTilesRemoved = new EventEmitter();
+    onTileRotated = new EventEmitter();
     onTilePreviewChanged = new EventEmitter();
     onPlaceholdersUpdated = new EventEmitter();
     //private nextTile?: HexTilePiece;
@@ -32469,6 +32495,70 @@
       this.nextPiece = this.dominoService.nextPiece();
       this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece);
     }
+    getAllPlaceholderTiles() {
+      return this.gameModel.getAllPlaceholderTiles();
+    }
+    getTilePositions(placeHolderId) {
+      const tile = this.getPlaceholder(placeHolderId);
+      if (!tile) {
+        throw new Error(`Placeholder tile with ID ${placeHolderId} not found.`);
+      }
+      const p22 = tile.neighbors()[this.currentPiece.direction];
+      const tile2 = this.gameModel.getPlaceholderAt(p22.x, p22.y, p22.z);
+      if (!tile2) {
+        return;
+      }
+      return [
+        tile.to2D(),
+        tile2.to2D()
+      ];
+    }
+    getPlaceholder(tileId) {
+      return this.gameModel.getPlaceholderById(tileId);
+    }
+    getTile(tileId) {
+      return this.gameModel.getTileById(tileId);
+    }
+    placeTile(tile) {
+      const tile2Pos = tile.neighbors()[this.currentPiece.direction];
+      if (!this.canPlace({ x: tile.x, y: tile.y, z: tile.z }, tile2Pos)) {
+        return false;
+      }
+      const id1 = this.gameModel.addTile(tile.x, tile.y, tile.z, {
+        id: `${tile.x},${tile.y},${tile.z}`,
+        type: "piece" /* piece */,
+        tileId: this.currentPiece.first,
+        rotation: this.currentPiece.direction
+      });
+      const id2 = this.gameModel.addTile(tile2Pos.x, tile2Pos.y, tile2Pos.z, {
+        id: `${tile2Pos.x},${tile2Pos.y},${tile2Pos.z}`,
+        type: "piece" /* piece */,
+        tileId: this.currentPiece.second,
+        rotation: this.currentPiece.direction
+      });
+      const changedTileIds = [id1, id2];
+      this.onTilesChanged.emit(changedTileIds);
+      this.checkPlacedDomino(id1, id2);
+      this.currentPiece = this.nextPiece;
+      this.nextPiece = this.dominoService.nextPiece();
+      this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece);
+      return true;
+    }
+    getTileDataById(tileId) {
+      return this.gameModel.getTileDataById(tileId);
+    }
+    rotatePreviewTileCounterClockwise() {
+      if (this.currentPiece) {
+        this.currentPiece.direction = (this.currentPiece.direction + 1) % 6;
+        this.onTileRotated.emit(this.currentPiece);
+      }
+    }
+    rotatePreviewTileClockwise() {
+      if (this.currentPiece) {
+        this.currentPiece.direction = (this.currentPiece.direction + 5) % 6;
+        this.onTileRotated.emit(this.currentPiece);
+      }
+    }
     /**`
      * Surrounds all piece tiles with placeholder tiles if empty spots exist.
      * @returns An array of IDs of the added placeholder tiles.
@@ -32485,45 +32575,74 @@
         }
       }
     }
-    getAllPlaceholderTiles() {
-      return this.gameModel.getAllPlaceholderTiles();
-    }
-    getTile(tileId) {
-      return this.gameModel.getTileById(tileId);
-    }
-    placeTile(tile) {
-      const existingTile = this.gameModel.getTileById(tile.id);
-      if (existingTile && existingTile.type === "placeholder" /* placeholder */) {
-        const id1 = this.gameModel.addTile(tile.x, tile.y, tile.z, {
-          id: `${tile.x},${tile.y},${tile.z}`,
-          type: "piece" /* piece */,
-          tileId: this.currentPiece.first,
-          rotation: this.currentPiece.direction
-        });
-        const x2D = 1 * Math.sqrt(3) * (1 + -1 / 2);
-        const y2D = 1 * (3 / 2) * -1;
-        const tile2Pos = tile.neighbors()[0];
-        const id2 = this.gameModel.addTile(tile2Pos.x, tile2Pos.y, tile2Pos.z, {
-          id: `${tile2Pos.x},${tile2Pos.y},${tile2Pos.z}`,
-          type: "piece" /* piece */,
-          tileId: this.currentPiece.second,
-          rotation: this.currentPiece.direction
-        });
-        const changedTileIds = [id1, id2];
-        this.onTilesChanged.emit(changedTileIds);
-        this.currentPiece = this.nextPiece;
-        this.nextPiece = this.dominoService.nextPiece();
-        this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece);
+    checkPlacedDomino(hexTileAId, hexTileBId) {
+      const hexTileA = this.gameModel.getTileById(hexTileAId);
+      const hexTileB = this.gameModel.getTileById(hexTileBId);
+      const visited = /* @__PURE__ */ new Set();
+      const data1 = this.gameModel.getTileDataById(hexTileAId);
+      if (data1?.type !== "piece" /* piece */) {
+        throw new Error(`Tile ${hexTileAId} is not a piece tile.`);
+      }
+      const data2 = this.gameModel.getTileDataById(hexTileBId);
+      if (data2?.type !== "piece" /* piece */) {
+        throw new Error(`Tile ${hexTileBId} is not a piece tile.`);
+      }
+      const totalMatches = this.collectMatchingGroup(hexTileA, visited, data1.tileId);
+      if (totalMatches.length >= 3) {
+        this.handleMatch(totalMatches);
+      }
+      if (data1.tileId !== data2.tileId) {
+        const totalMatchesB = this.collectMatchingGroup(hexTileB, visited, data2.tileId);
+        if (totalMatchesB.length >= 3) {
+          this.handleMatch(totalMatchesB);
+        }
       }
     }
-    getTileDataById(tileId) {
-      return this.gameModel.getTileDataById(tileId);
+    collectMatchingGroup(startTile, checkedInstanceIds, definitionId) {
+      const groupInstanceIds = [];
+      const pendingTiles = [startTile];
+      while (pendingTiles.length > 0) {
+        const tile = pendingTiles.pop();
+        if (!tile || checkedInstanceIds.has(tile.id)) {
+          continue;
+        }
+        const tileData = this.gameModel.getTileDataById(tile.id);
+        if (!tileData || tileData.type !== "piece" /* piece */ || tileData.tileId !== definitionId) {
+          continue;
+        }
+        checkedInstanceIds.add(tile.id);
+        groupInstanceIds.push(tile.id);
+        for (const neighborPosition of tile.neighbors()) {
+          const neighborTile = this.gameModel.getTileAt(
+            neighborPosition.x,
+            neighborPosition.y,
+            neighborPosition.z
+          );
+          if (neighborTile && !checkedInstanceIds.has(neighborTile.id) && neighborTile.type === "piece" /* piece */) {
+            pendingTiles.push(neighborTile);
+          }
+        }
+      }
+      return groupInstanceIds;
     }
-    rotatePreviewTileCounterClockwise() {
+    canPlace(tileA, tileB) {
+      let spot1 = false;
+      let spot2 = false;
+      const existingTileA = this.gameModel.getTileAt(tileA.x, tileA.y, tileA.z);
+      if (!existingTileA) {
+        spot1 = true;
+      }
+      const existingTileB = this.gameModel.getTileAt(tileB.x, tileB.y, tileB.z);
+      if (!existingTileB) {
+        spot2 = true;
+      }
+      return spot1 && spot2;
     }
-    rotatePreviewTileClockwise() {
-    }
-    checkMatches(tileId) {
+    handleMatch(matches2) {
+      for (const tile of matches2) {
+        this.gameModel.removeTile(tile);
+      }
+      this.onTilesRemoved.emit(matches2);
     }
   };
 
@@ -32964,7 +33083,7 @@
     onTileUnhover = new EventEmitter();
     currentHoveredTile = y(null);
     emitTileHover(tileId) {
-      const tile = this.gamePlayService.getTile(tileId);
+      const tile = this.gamePlayService.getPlaceholder(tileId);
       const tilePos = tile?.to2D();
       if (tilePos && tile) {
         this.onTileHover.emit(tileId, tilePos, tile);
@@ -32974,7 +33093,7 @@
       }
     }
     emitTileClick(tileId) {
-      const tile = this.gamePlayService.getTile(tileId);
+      const tile = this.gamePlayService.getPlaceholder(tileId);
       const tilePos = tile?.to2D();
       if (tilePos && tile) {
         this.onTileClick.emit(tileId, tilePos, tile);
@@ -32996,7 +33115,7 @@
       this.tileInteractionService.onTileClick.add(this.onTileClick);
     }
     onTileClick = (tileId) => {
-      const tile = this.gamePlayService.getTile(tileId);
+      const tile = this.gamePlayService.getPlaceholder(tileId);
       if (tile) {
         this.gamePlayService.placeTile(tile);
       }
@@ -33115,18 +33234,13 @@
     HexGrid: () => HexGrid
   });
 
-  // js/components/tile-prefabs.ts
-  var tile_prefabs_exports = {};
-  __export(tile_prefabs_exports, {
-    TilePrefabs: () => TilePrefabs
-  });
-  var TilePrefabs = class extends PrefabsBase {
-    PrefabBinName() {
-      return "Tiles.bin";
-    }
+  // js/utils/EWUtils.ts
+  function rotationToDegrees(rotation) {
+    return (6 - rotation) * 60;
+  }
+  var EWUtils = {
+    rotationToDegrees
   };
-  __publicField(TilePrefabs, "TypeName", "tile-prefabs");
-  __publicField(TilePrefabs, "InheritProperties", true);
 
   // js/components/tile-data.ts
   var tile_data_exports = {};
@@ -33141,32 +33255,45 @@
     property.string()
   ], TileData.prototype, "tileId", 2);
 
+  // js/components/tile-prefabs.ts
+  var tile_prefabs_exports = {};
+  __export(tile_prefabs_exports, {
+    TilePrefabs: () => TilePrefabs
+  });
+  var TilePrefabs = class extends PrefabsBase {
+    PrefabBinName() {
+      return "Tiles.bin";
+    }
+  };
+  __publicField(TilePrefabs, "TypeName", "tile-prefabs");
+  __publicField(TilePrefabs, "InheritProperties", true);
+
   // js/components/hex-grid.ts
   var tempQuat5 = quat_exports.create();
   var HexGrid = class extends Component3 {
+    hexTiles = /* @__PURE__ */ new Map();
+    placeholderTiles = /* @__PURE__ */ new Map();
+    get gamePlayService() {
+      return serviceLocator.get(GamePlayService);
+    }
     static onRegister(engine) {
       engine.registerComponent(TileData);
       engine.registerComponent(SelfDestruct);
     }
-    get gamePlayService() {
-      return serviceLocator.get(GamePlayService);
-    }
-    hexTiles = /* @__PURE__ */ new Map();
-    placeholderTiles = /* @__PURE__ */ new Map();
     init() {
       this.tilePrefabs = this.tilePrefabsObject.getComponent(TilePrefabs);
-    }
-    start() {
     }
     onActivate() {
       this.gamePlayService.onNewGame.add(this.onNewGame);
       this.gamePlayService.onTilesChanged.add(this.onTilesChanged);
       this.gamePlayService.onPlaceholdersUpdated.add(this.onPlaceholdersUpdated);
+      this.gamePlayService.onTilesRemoved.add(this.onTilesRemoved);
     }
     onDeactivate() {
       this.gamePlayService.onNewGame.remove(this.onNewGame);
       this.gamePlayService.onTilesChanged.remove(this.onTilesChanged);
       this.gamePlayService.onPlaceholdersUpdated.remove(this.onPlaceholdersUpdated);
+      this.gamePlayService.onTilesRemoved.remove(this.onTilesRemoved);
     }
     onNewGame = () => {
       this.hexTiles.forEach((tile) => {
@@ -33216,7 +33343,7 @@
         if (tile) {
           let newTile;
           if (tile.type === "placeholder") {
-            newTile = this.tilePrefabs.spawn("Placeholder");
+            return;
           } else {
             const tileData = this.gamePlayService.getTileDataById(tileId);
             if (tileData && tileData.type === "piece") {
@@ -33226,6 +33353,9 @@
                 return;
               }
               newTile = this.tilePrefabs.spawn(t2.prefab);
+              const rotation = EWUtils.rotationToDegrees(tileData.rotation);
+              quat_exports.fromEuler(tempQuat5, 0, rotation, 0);
+              newTile.setRotationLocal(tempQuat5);
             } else {
               return;
             }
@@ -33239,6 +33369,18 @@
           this.hexTiles.set(tileId, newTile);
         }
       }
+    };
+    onTilesRemoved = (matches2) => {
+      let delay = 0.05;
+      matches2.forEach((tileId) => {
+        const existingTile = this.hexTiles.get(tileId);
+        console.log(tileId);
+        if (existingTile && !existingTile.isDestroyed) {
+          existingTile.addComponent(SelfDestruct, { lifeTime: delay });
+          this.hexTiles.delete(tileId);
+          delay += 0.1;
+        }
+      });
     };
   };
   __publicField(HexGrid, "TypeName", "hex-grid");
@@ -33489,20 +33631,11 @@
   __export(tile_preview_exports, {
     TilePreview: () => TilePreview
   });
-
-  // js/utils/EWUtils.ts
-  function rotationToDegrees(rotation) {
-    return rotation * 60;
-  }
-  var EWUtils = {
-    rotationToDegrees
-  };
-
-  // js/components/tile-preview.ts
   var tempQuat7 = quat_exports.create();
   var TilePreview = class extends Component3 {
     previewTileObject1;
     previewTileObject2;
+    hoveringTileId = null;
     get gamePlayService() {
       return serviceLocator.get(GamePlayService);
     }
@@ -33517,14 +33650,14 @@
     }
     onActivate() {
       this.gamePlayService.onTilePreviewChanged.add(this.onTilePreviewChanged);
+      this.gamePlayService.onTileRotated.add(this.onTileRotated);
       this.tileInteractionService.onTileHover.add(this.onTileHover);
-      this.tileInteractionService.onTileClick.add(this.onTileUnhover);
       this.tileInteractionService.onTileUnhover.add(this.onTileUnhover);
     }
     onDeactivate() {
       this.gamePlayService.onTilePreviewChanged.remove(this.onTilePreviewChanged);
+      this.gamePlayService.onTileRotated.remove(this.onTileRotated);
       this.tileInteractionService.onTileHover.remove(this.onTileHover);
-      this.tileInteractionService.onTileClick.remove(this.onTileUnhover);
       this.tileInteractionService.onTileUnhover.remove(this.onTileUnhover);
     }
     v = 0;
@@ -33558,21 +33691,41 @@
       const rotation = EWUtils.rotationToDegrees(currentPiece.direction);
       quat_exports.fromEuler(tempQuat7, 0, rotation, 0);
       this.previewTileObject1.setRotationLocal(tempQuat7);
+      this.previewTileObject2.setRotationLocal(tempQuat7);
+    };
+    onTileRotated = (currentPiece) => {
+      if (!this.hoveringTileId) {
+        return;
+      }
+      const pos = this.gamePlayService.getTilePositions(this.hoveringTileId);
+      if (!pos) {
+        return;
+      }
+      this.currentPos2 = [pos[1].x, 0.4, pos[1].y];
+      this.previewTileObject2.setPositionLocal(this.currentPos2);
+      const rotation = EWUtils.rotationToDegrees(currentPiece.direction);
+      quat_exports.fromEuler(tempQuat7, 0, rotation, 0);
+      this.previewTileObject1.setRotationLocal(tempQuat7);
+      this.previewTileObject2.setRotationLocal(tempQuat7);
     };
     onTileHover = (tileId, tilePos) => {
+      this.hoveringTileId = tileId;
       if (!this.previewTileObject1 || !this.previewTileObject2) {
         return;
       }
+      const pos = this.gamePlayService.getTilePositions(tileId);
+      if (!pos) {
+        return;
+      }
       this.previewTileObject1.setScalingLocal(this.defaultScale);
-      this.currentPos1 = [tilePos.x, 0.4, tilePos.y];
+      this.currentPos1 = [pos[0].x, 0.4, pos[0].y];
       this.previewTileObject1.setPositionLocal(this.currentPos1);
-      const x2D = 1 * Math.sqrt(3) * (1 + -1 / 2);
-      const y2D = 1 * (3 / 2) * -1;
-      this.currentPos2 = [tilePos.x + x2D, 0.4, tilePos.y + y2D];
+      this.currentPos2 = [pos[1].x, 0.4, pos[1].y];
       this.previewTileObject2.setPositionLocal(this.currentPos2);
       this.previewTileObject2.setScalingLocal(this.defaultScale);
     };
     onTileUnhover = (tileId) => {
+      this.hoveringTileId = null;
       if (!this.previewTileObject1 || !this.previewTileObject2) {
         return;
       }
@@ -37208,6 +37361,7 @@
   _registerEditor(dist_exports3);
   _registerEditor(dist_exports2);
   _registerEditor(bootstrap_services_exports);
+  _registerEditor(HexGrid_exports);
   _registerEditor(hex_grid_exports);
   _registerEditor(input_helper_exports);
   _registerEditor(tile_data_exports);
@@ -37216,6 +37370,8 @@
   _registerEditor(tile_prefabs_exports);
   _registerEditor(tile_preview_next_exports);
   _registerEditor(tile_preview_exports);
+  _registerEditor(GameModel_exports);
+  _registerEditor(GamePlayService_exports);
   _registerEditor(GameServicesProvider_exports);
   _registerEditor(mainMenu_exports);
   _registerEditor(useMenuViewModel_exports);

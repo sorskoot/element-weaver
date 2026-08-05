@@ -45,7 +45,7 @@ export class TilePreview extends Component {
         this.gamePlayService.onTilePreviewChanged.add(this.onTilePreviewChanged);
         this.gamePlayService.onTileRotated.add(this.onTileRotated);
         this.tileInteractionService.onTileHover.add(this.onTileHover);
-        this.tileInteractionService.onTileClick.add(this.onTileUnhover);
+        //this.tileInteractionService.onTileClick.add(this.onTileUnhover);
         this.tileInteractionService.onTileUnhover.add(this.onTileUnhover);
     }
 
@@ -53,7 +53,7 @@ export class TilePreview extends Component {
         this.gamePlayService.onTilePreviewChanged.remove(this.onTilePreviewChanged);
         this.gamePlayService.onTileRotated.remove(this.onTileRotated);
         this.tileInteractionService.onTileHover.remove(this.onTileHover);
-        this.tileInteractionService.onTileClick.remove(this.onTileUnhover);
+        //this.tileInteractionService.onTileClick.remove(this.onTileUnhover);
         this.tileInteractionService.onTileUnhover.remove(this.onTileUnhover);
     }
 

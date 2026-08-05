@@ -32505,13 +32505,16 @@
       return this.gameModel.getTileById(tileId);
     }
     placeTile(tile) {
+      const tile2Pos = tile.neighbors()[this.currentPiece.direction];
+      if (!this.canPlace({ x: tile.x, y: tile.y, z: tile.z }, tile2Pos)) {
+        return;
+      }
       const id1 = this.gameModel.addTile(tile.x, tile.y, tile.z, {
         id: `${tile.x},${tile.y},${tile.z}`,
         type: "piece" /* piece */,
         tileId: this.currentPiece.first,
         rotation: this.currentPiece.direction
       });
-      const tile2Pos = tile.neighbors()[this.currentPiece.direction];
       const id2 = this.gameModel.addTile(tile2Pos.x, tile2Pos.y, tile2Pos.z, {
         id: `${tile2Pos.x},${tile2Pos.y},${tile2Pos.z}`,
         type: "piece" /* piece */,
@@ -32606,12 +32609,16 @@
       }
       return groupInstanceIds;
     }
-    canPlace(tile) {
+    canPlace(tileA, tileB) {
       let spot1 = false;
       let spot2 = false;
-      const existingTile = this.gameModel.getTileAt(tile.x, tile.y, tile.z);
-      if (!existingTile) {
+      const existingTileA = this.gameModel.getTileAt(tileA.x, tileA.y, tileA.z);
+      if (!existingTileA) {
         spot1 = true;
+      }
+      const existingTileB = this.gameModel.getTileAt(tileB.x, tileB.y, tileB.z);
+      if (!existingTileB) {
+        spot2 = true;
       }
       return spot1 && spot2;
     }

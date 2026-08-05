@@ -1,59 +1,50 @@
+import {rng, SelfDestruct, wlUtils} from '@sorskoot/wonderland-components';
 import {Component, Object3D, WonderlandEngine} from '@wonderlandengine/api';
 import {property} from '@wonderlandengine/api/decorators.js';
-import {TilePrefabs} from './tile-prefabs.ts';
-import {SelfDestruct, wlUtils} from '@sorskoot/wonderland-components';
-import {serviceLocator} from '../utils/ServiceLocator.ts';
-import {GamePlayService} from '../services/GamePlayService.ts';
-import {TileData} from './tile-data.ts';
-import {TileMaterials} from './tile-materials.ts';
 import {quat} from 'gl-matrix';
-import {EWUtils} from '../utils/EWUtils.ts';
 import {NATURE_TILES} from '../config/TileDefinitions.ts';
+import {GamePlayService} from '../services/GamePlayService.ts';
 import {TileId} from '../types/HexTile.ts';
+import {EWUtils} from '../utils/EWUtils.ts';
+import {serviceLocator} from '../utils/ServiceLocator.ts';
+import {TileData} from './tile-data.ts';
+import {TilePrefabs} from './tile-prefabs.ts';
 
 const tempQuat = quat.create();
 
 export class HexGrid extends Component {
     static TypeName = 'hex-grid';
+    @property.object({required: true})
+    declare public tilePrefabsObject: Object3D;
+    declare private tilePrefabs: TilePrefabs;
+    private hexTiles: Map<string, Object3D> = new Map();
+    private placeholderTiles: Map<string, Object3D> = new Map();
+
+    private get gamePlayService(): GamePlayService {
+        return serviceLocator.get<GamePlayService>(GamePlayService);
+    }
 
     static onRegister(engine: WonderlandEngine) {
         engine.registerComponent(TileData);
         engine.registerComponent(SelfDestruct);
     }
 
-    @property.object({required: true})
-    declare public tilePrefabsObject: Object3D;
-    declare private tilePrefabs: TilePrefabs;
-
-    private get gamePlayService(): GamePlayService {
-        return serviceLocator.get<GamePlayService>(GamePlayService);
-    }
-
-    private hexTiles: Map<string, Object3D> = new Map();
-    private placeholderTiles: Map<string, Object3D> = new Map();
-    
     init() {
         this.tilePrefabs = this.tilePrefabsObject.getComponent(TilePrefabs)!;
     }
 
-    start() {
-        // setTimeout(() => {
-        //     const t = this.tilePrefabs.spawn('Tile')!;
-        //     t.resetPosition();
-        //     t.parent = this.object;
-        //     wlUtils.setActive(t, true);
-        // }, 1000);
-    }
     onActivate() {
         this.gamePlayService.onNewGame.add(this.onNewGame);
         this.gamePlayService.onTilesChanged.add(this.onTilesChanged);
         this.gamePlayService.onPlaceholdersUpdated.add(this.onPlaceholdersUpdated);
+        this.gamePlayService.onTilesRemoved.add(this.onTilesRemoved);
     }
 
     onDeactivate() {
         this.gamePlayService.onNewGame.remove(this.onNewGame);
         this.gamePlayService.onTilesChanged.remove(this.onTilesChanged);
         this.gamePlayService.onPlaceholdersUpdated.remove(this.onPlaceholdersUpdated);
+        this.gamePlayService.onTilesRemoved.remove(this.onTilesRemoved);
     }
 
     private onNewGame = () => {
@@ -69,8 +60,6 @@ export class HexGrid extends Component {
             }
         });
         this.placeholderTiles.clear();
-
-        
     };
 
     private onPlaceholdersUpdated = () => {
@@ -99,9 +88,7 @@ export class HexGrid extends Component {
 
     //TK: Maybe this should be changed in to tiles that are placed
     // and tiles that are removed, and a separate event for when the placeholders are changed
-
     private onTilesChanged = (changedTileIds: TileId[]) => {
-
         // Handle placeholder updates here
         for (const tileId of changedTileIds) {
             // currently the only changes that are possible is that it's either a new tiles,
@@ -119,7 +106,7 @@ export class HexGrid extends Component {
             if (tile) {
                 let newTile: Object3D;
                 if (tile.type === 'placeholder') {
-                    newTile = this.tilePrefabs.spawn('Placeholder')!;
+                    return; // we're not doing placeholder this way anymore
                 } else {
                     const tileData = this.gamePlayService.getTileDataById(tileId);
                     if (tileData && tileData.type === 'piece') {
@@ -135,11 +122,8 @@ export class HexGrid extends Component {
                     } else {
                         return;
                     }
-                    //     newTile.getComponent(TileMaterials)!.setMaterials(tileData.elements);
-                    // }
                 }
                 newTile.addComponent(TileData, {tileId: tileId});
-
 
                 newTile.resetPosition();
                 newTile.parent = this.object;
@@ -150,4 +134,19 @@ export class HexGrid extends Component {
             }
         }
     };
+
+    private onTilesRemoved = (matches: string[]): void =>   {
+        let delay = 0.05;
+        matches.forEach((tileId) => {
+            const existingTile = this.hexTiles.get(tileId);
+            console.log(tileId);
+            if (existingTile && !existingTile.isDestroyed) {
+                // Hide the old tile and destroy it after a short delay to allow the hover events to complete.
+                //existingTile.setScalingWorld([0, 0, 0]);
+                existingTile.addComponent(SelfDestruct, {lifeTime: delay});
+                this.hexTiles.delete(tileId);
+                delay += .1;
+            }
+        })
+    }
 }

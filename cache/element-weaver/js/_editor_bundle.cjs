@@ -32082,12 +32082,6 @@
   };
   var serviceLocator = new ServiceLocator2();
 
-  // js/models/GameModel.ts
-  var GameModel_exports = {};
-  __export(GameModel_exports, {
-    GameModel: () => GameModel
-  });
-
   // js/classes/Tags.ts
   var _Tags2 = class {
     _tagList = /* @__PURE__ */ new Map();
@@ -32464,6 +32458,7 @@
     }
     onNewGame = new EventEmitter();
     onTilesChanged = new EventEmitter();
+    onTilesRemoved = new EventEmitter();
     onTileRotated = new EventEmitter();
     onTilePreviewChanged = new EventEmitter();
     onPlaceholdersUpdated = new EventEmitter();
@@ -32484,22 +32479,6 @@
       this.currentPiece = this.dominoService.nextPiece();
       this.nextPiece = this.dominoService.nextPiece();
       this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece);
-    }
-    /**`
-     * Surrounds all piece tiles with placeholder tiles if empty spots exist.
-     * @returns An array of IDs of the added placeholder tiles.
-     */
-    surroundWithPlaceholders() {
-      const allTiles = this.gameModel.getAllPlaceholderTiles();
-      for (const tile of allTiles) {
-        const neighbors = tile.neighbors();
-        for (const neighbor of neighbors) {
-          const neighborTile = this.gameModel.getTileAt(neighbor.x, neighbor.y, neighbor.z);
-          if (!neighborTile) {
-            this.gameModel.addPlaceholderTile(neighbor.x, neighbor.y, neighbor.z);
-          }
-        }
-      }
     }
     getAllPlaceholderTiles() {
       return this.gameModel.getAllPlaceholderTiles();
@@ -32541,6 +32520,7 @@
       });
       const changedTileIds = [id1, id2];
       this.onTilesChanged.emit(changedTileIds);
+      this.checkPlacedDomino(id1, id2);
       this.currentPiece = this.nextPiece;
       this.nextPiece = this.dominoService.nextPiece();
       this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece);
@@ -32560,7 +32540,71 @@
         this.onTileRotated.emit(this.currentPiece);
       }
     }
-    checkMatches(tileId) {
+    /**`
+     * Surrounds all piece tiles with placeholder tiles if empty spots exist.
+     * @returns An array of IDs of the added placeholder tiles.
+     */
+    surroundWithPlaceholders() {
+      const allTiles = this.gameModel.getAllPlaceholderTiles();
+      for (const tile of allTiles) {
+        const neighbors = tile.neighbors();
+        for (const neighbor of neighbors) {
+          const neighborTile = this.gameModel.getTileAt(neighbor.x, neighbor.y, neighbor.z);
+          if (!neighborTile) {
+            this.gameModel.addPlaceholderTile(neighbor.x, neighbor.y, neighbor.z);
+          }
+        }
+      }
+    }
+    checkPlacedDomino(hexTileAId, hexTileBId) {
+      const hexTileA = this.gameModel.getTileById(hexTileAId);
+      const hexTileB = this.gameModel.getTileById(hexTileBId);
+      const visited = /* @__PURE__ */ new Set();
+      const data1 = this.gameModel.getTileDataById(hexTileAId);
+      if (data1?.type !== "piece" /* piece */) {
+        throw new Error(`Tile ${hexTileAId} is not a piece tile.`);
+      }
+      const data2 = this.gameModel.getTileDataById(hexTileBId);
+      if (data2?.type !== "piece" /* piece */) {
+        throw new Error(`Tile ${hexTileBId} is not a piece tile.`);
+      }
+      const totalMatches = this.collectMatchingGroup(hexTileA, visited, data1.tileId);
+      if (totalMatches.length >= 3) {
+        this.handleMatch(totalMatches);
+      }
+      if (data1.tileId !== data2.tileId) {
+        const totalMatchesB = this.collectMatchingGroup(hexTileB, visited, data2.tileId);
+        if (totalMatchesB.length >= 3) {
+          this.handleMatch(totalMatchesB);
+        }
+      }
+    }
+    collectMatchingGroup(startTile, checkedInstanceIds, definitionId) {
+      const groupInstanceIds = [];
+      const pendingTiles = [startTile];
+      while (pendingTiles.length > 0) {
+        const tile = pendingTiles.pop();
+        if (!tile || checkedInstanceIds.has(tile.id)) {
+          continue;
+        }
+        const tileData = this.gameModel.getTileDataById(tile.id);
+        if (!tileData || tileData.type !== "piece" /* piece */ || tileData.tileId !== definitionId) {
+          continue;
+        }
+        checkedInstanceIds.add(tile.id);
+        groupInstanceIds.push(tile.id);
+        for (const neighborPosition of tile.neighbors()) {
+          const neighborTile = this.gameModel.getTileAt(
+            neighborPosition.x,
+            neighborPosition.y,
+            neighborPosition.z
+          );
+          if (neighborTile && !checkedInstanceIds.has(neighborTile.id) && neighborTile.type === "piece" /* piece */) {
+            pendingTiles.push(neighborTile);
+          }
+        }
+      }
+      return groupInstanceIds;
     }
     canPlace(tile) {
       let spot1 = false;
@@ -32570,6 +32614,12 @@
         spot1 = true;
       }
       return spot1 && spot2;
+    }
+    handleMatch(matches2) {
+      for (const tile of matches2) {
+        this.gameModel.removeTile(tile);
+      }
+      this.onTilesRemoved.emit(matches2);
     }
   };
 
@@ -33001,10 +33051,6 @@
   };
 
   // js/services/TileInteractionService.ts
-  var TileInteractionService_exports = {};
-  __export(TileInteractionService_exports, {
-    TileInteractionService: () => TileInteractionService
-  });
   var TileInteractionService = class {
     constructor(gamePlayService2) {
       this.gamePlayService = gamePlayService2;
@@ -33039,10 +33085,6 @@
   };
 
   // js/services/TilePlayService.ts
-  var TilePlayService_exports = {};
-  __export(TilePlayService_exports, {
-    TilePlayService: () => TilePlayService
-  });
   var TilePlayService = class {
     constructor(gamePlayService2, tileInteractionService2) {
       this.gamePlayService = gamePlayService2;
@@ -33169,18 +33211,13 @@
     HexGrid: () => HexGrid
   });
 
-  // js/components/tile-prefabs.ts
-  var tile_prefabs_exports = {};
-  __export(tile_prefabs_exports, {
-    TilePrefabs: () => TilePrefabs
-  });
-  var TilePrefabs = class extends PrefabsBase {
-    PrefabBinName() {
-      return "Tiles.bin";
-    }
+  // js/utils/EWUtils.ts
+  function rotationToDegrees(rotation) {
+    return (6 - rotation) * 60;
+  }
+  var EWUtils = {
+    rotationToDegrees
   };
-  __publicField(TilePrefabs, "TypeName", "tile-prefabs");
-  __publicField(TilePrefabs, "InheritProperties", true);
 
   // js/components/tile-data.ts
   var tile_data_exports = {};
@@ -33195,44 +33232,45 @@
     property.string()
   ], TileData.prototype, "tileId", 2);
 
-  // js/utils/EWUtils.ts
-  var EWUtils_exports = {};
-  __export(EWUtils_exports, {
-    EWUtils: () => EWUtils
+  // js/components/tile-prefabs.ts
+  var tile_prefabs_exports = {};
+  __export(tile_prefabs_exports, {
+    TilePrefabs: () => TilePrefabs
   });
-  function rotationToDegrees(rotation) {
-    return (6 - rotation) * 60;
-  }
-  var EWUtils = {
-    rotationToDegrees
+  var TilePrefabs = class extends PrefabsBase {
+    PrefabBinName() {
+      return "Tiles.bin";
+    }
   };
+  __publicField(TilePrefabs, "TypeName", "tile-prefabs");
+  __publicField(TilePrefabs, "InheritProperties", true);
 
   // js/components/hex-grid.ts
   var tempQuat5 = quat_exports.create();
   var HexGrid = class extends Component3 {
+    hexTiles = /* @__PURE__ */ new Map();
+    placeholderTiles = /* @__PURE__ */ new Map();
+    get gamePlayService() {
+      return serviceLocator.get(GamePlayService);
+    }
     static onRegister(engine) {
       engine.registerComponent(TileData);
       engine.registerComponent(SelfDestruct);
     }
-    get gamePlayService() {
-      return serviceLocator.get(GamePlayService);
-    }
-    hexTiles = /* @__PURE__ */ new Map();
-    placeholderTiles = /* @__PURE__ */ new Map();
     init() {
       this.tilePrefabs = this.tilePrefabsObject.getComponent(TilePrefabs);
-    }
-    start() {
     }
     onActivate() {
       this.gamePlayService.onNewGame.add(this.onNewGame);
       this.gamePlayService.onTilesChanged.add(this.onTilesChanged);
       this.gamePlayService.onPlaceholdersUpdated.add(this.onPlaceholdersUpdated);
+      this.gamePlayService.onTilesRemoved.add(this.onTilesRemoved);
     }
     onDeactivate() {
       this.gamePlayService.onNewGame.remove(this.onNewGame);
       this.gamePlayService.onTilesChanged.remove(this.onTilesChanged);
       this.gamePlayService.onPlaceholdersUpdated.remove(this.onPlaceholdersUpdated);
+      this.gamePlayService.onTilesRemoved.remove(this.onTilesRemoved);
     }
     onNewGame = () => {
       this.hexTiles.forEach((tile) => {
@@ -33282,7 +33320,7 @@
         if (tile) {
           let newTile;
           if (tile.type === "placeholder") {
-            newTile = this.tilePrefabs.spawn("Placeholder");
+            return;
           } else {
             const tileData = this.gamePlayService.getTileDataById(tileId);
             if (tileData && tileData.type === "piece") {
@@ -33308,6 +33346,18 @@
           this.hexTiles.set(tileId, newTile);
         }
       }
+    };
+    onTilesRemoved = (matches2) => {
+      let delay = 0.05;
+      matches2.forEach((tileId) => {
+        const existingTile = this.hexTiles.get(tileId);
+        console.log(tileId);
+        if (existingTile && !existingTile.isDestroyed) {
+          existingTile.addComponent(SelfDestruct, { lifeTime: delay });
+          this.hexTiles.delete(tileId);
+          delay += 0.1;
+        }
+      });
     };
   };
   __publicField(HexGrid, "TypeName", "hex-grid");
@@ -33666,26 +33716,6 @@
   __decorateClass([
     property.object({ required: true })
   ], TilePreview.prototype, "tilePrefabsObject", 2);
-
-  // js/types/Points.ts
-  var Points_exports = {};
-  __export(Points_exports, {
-    sumPoint2D: () => sumPoint2D,
-    sumPoint3D: () => sumPoint3D
-  });
-  function sumPoint2D(a2, b2) {
-    return {
-      x: a2.x + b2.x,
-      y: a2.y + b2.y
-    };
-  }
-  function sumPoint3D(a2, b2) {
-    return {
-      x: a2.x + b2.x,
-      y: a2.y + b2.y,
-      z: a2.z + b2.z
-    };
-  }
 
   // js/ui/GameServicesProvider.tsx
   var GameServicesProvider_exports = {};
@@ -37318,16 +37348,11 @@
   _registerEditor(tile_prefabs_exports);
   _registerEditor(tile_preview_next_exports);
   _registerEditor(tile_preview_exports);
-  _registerEditor(GameModel_exports);
   _registerEditor(GamePlayService_exports);
-  _registerEditor(TileInteractionService_exports);
-  _registerEditor(TilePlayService_exports);
-  _registerEditor(Points_exports);
   _registerEditor(GameServicesProvider_exports);
   _registerEditor(mainMenu_exports);
   _registerEditor(useMenuViewModel_exports);
   _registerEditor(root_ui_exports);
-  _registerEditor(EWUtils_exports);
 })();
 /*! Bundled license information:
 

@@ -32082,12 +32082,6 @@
   };
   var serviceLocator = new ServiceLocator2();
 
-  // js/models/GameModel.ts
-  var GameModel_exports = {};
-  __export(GameModel_exports, {
-    GameModel: () => GameModel
-  });
-
   // js/classes/Tags.ts
   var _Tags2 = class {
     _tagList = /* @__PURE__ */ new Map();
@@ -32247,10 +32241,6 @@
   };
 
   // js/classes/HexGrid.ts
-  var HexGrid_exports = {};
-  __export(HexGrid_exports, {
-    HexagonGrid: () => HexagonGrid
-  });
   var HexagonGrid = class {
     /**
      * A map storing hexagon tiles with their unique keys.
@@ -32383,12 +32373,6 @@
       this.configModel = configModel2;
     }
   };
-
-  // js/services/GamePlayService.ts
-  var GamePlayService_exports = {};
-  __export(GamePlayService_exports, {
-    GamePlayService: () => GamePlayService
-  });
 
   // js/utils/Events.ts
   var EventEmitter = class {
@@ -37361,7 +37345,6 @@
   _registerEditor(dist_exports3);
   _registerEditor(dist_exports2);
   _registerEditor(bootstrap_services_exports);
-  _registerEditor(HexGrid_exports);
   _registerEditor(hex_grid_exports);
   _registerEditor(input_helper_exports);
   _registerEditor(tile_data_exports);
@@ -37370,8 +37353,6 @@
   _registerEditor(tile_prefabs_exports);
   _registerEditor(tile_preview_next_exports);
   _registerEditor(tile_preview_exports);
-  _registerEditor(GameModel_exports);
-  _registerEditor(GamePlayService_exports);
   _registerEditor(GameServicesProvider_exports);
   _registerEditor(mainMenu_exports);
   _registerEditor(useMenuViewModel_exports);

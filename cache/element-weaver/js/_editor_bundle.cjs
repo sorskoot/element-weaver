@@ -32301,6 +32301,10 @@
     clear() {
       this._tiles.clear();
     }
+    removeTile(x2, y2, z) {
+      const key = this.getKey(x2, y2, z);
+      this._tiles.delete(key);
+    }
   };
 
   // js/models/GameModel.ts
@@ -32353,6 +32357,7 @@
     removeTile(tileId) {
       const tile = this.grid.getTileById(tileId);
       if (tile) {
+        this.grid.removeTile(tile.x, tile.y, tile.z);
         this.tileData.delete(tileId);
       }
     }
@@ -32368,12 +32373,6 @@
       this.configModel = configModel2;
     }
   };
-
-  // js/services/GamePlayService.ts
-  var GamePlayService_exports = {};
-  __export(GamePlayService_exports, {
-    GamePlayService: () => GamePlayService
-  });
 
   // js/utils/Events.ts
   var EventEmitter = class {
@@ -32507,7 +32506,7 @@
     placeTile(tile) {
       const tile2Pos = tile.neighbors()[this.currentPiece.direction];
       if (!this.canPlace({ x: tile.x, y: tile.y, z: tile.z }, tile2Pos)) {
-        return;
+        return false;
       }
       const id1 = this.gameModel.addTile(tile.x, tile.y, tile.z, {
         id: `${tile.x},${tile.y},${tile.z}`,
@@ -32527,6 +32526,7 @@
       this.currentPiece = this.nextPiece;
       this.nextPiece = this.dominoService.nextPiece();
       this.onTilePreviewChanged.emit(this.currentPiece, this.nextPiece);
+      return true;
     }
     getTileDataById(tileId) {
       return this.gameModel.getTileDataById(tileId);
@@ -33636,14 +33636,12 @@
       this.gamePlayService.onTilePreviewChanged.add(this.onTilePreviewChanged);
       this.gamePlayService.onTileRotated.add(this.onTileRotated);
       this.tileInteractionService.onTileHover.add(this.onTileHover);
-      this.tileInteractionService.onTileClick.add(this.onTileUnhover);
       this.tileInteractionService.onTileUnhover.add(this.onTileUnhover);
     }
     onDeactivate() {
       this.gamePlayService.onTilePreviewChanged.remove(this.onTilePreviewChanged);
       this.gamePlayService.onTileRotated.remove(this.onTileRotated);
       this.tileInteractionService.onTileHover.remove(this.onTileHover);
-      this.tileInteractionService.onTileClick.remove(this.onTileUnhover);
       this.tileInteractionService.onTileUnhover.remove(this.onTileUnhover);
     }
     v = 0;
@@ -37355,7 +37353,6 @@
   _registerEditor(tile_prefabs_exports);
   _registerEditor(tile_preview_next_exports);
   _registerEditor(tile_preview_exports);
-  _registerEditor(GamePlayService_exports);
   _registerEditor(GameServicesProvider_exports);
   _registerEditor(mainMenu_exports);
   _registerEditor(useMenuViewModel_exports);

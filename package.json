@@ -6,7 +6,9 @@
     "type": "module",
     "module": "js/index.js",
     "scripts": {
-        "pack-assets": "assetpack"
+        "pack-assets": "assetpack",
+        "build": "wonderland-editor --package --windowless --project ElementWeaver.wlp",
+        "watch": "wonderland-editor --package --windowless -w -s --project ElementWeaver.wlp"
     },
     "keywords": [
         "wonderland-engine"

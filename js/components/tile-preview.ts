@@ -62,9 +62,9 @@ export class TilePreview extends Component {
         if (!this.previewTileObject1 || !this.previewTileObject2) {
             return;
         }
-        this.currentPos1[1] = Math.sin(this.v * 10) * 0.05 + 0.2;
+        this.currentPos1[1] = Math.sin(this.v * 5) * 0.2 + 0.25;
         this.previewTileObject1!.setPositionLocal(this.currentPos1);
-        this.currentPos2[1] = Math.sin(this.v * 10) * 0.05 + 0.2;
+        this.currentPos2[1] = Math.sin(this.v * 5) * 0.2 + 0.25;
         this.previewTileObject2!.setPositionLocal(this.currentPos2);
         this.v += dt;
     }

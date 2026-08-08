@@ -42,7 +42,7 @@ export class GamePlayService {
         this.surroundWithPlaceholders();
         this.surroundWithPlaceholders();
         this.surroundWithPlaceholders();
-
+        this.surroundWithPlaceholders(true);
         this.onPlaceholdersUpdated.emit();
 
         //this.createNextTilePreview();
@@ -145,7 +145,7 @@ export class GamePlayService {
      * Surrounds all piece tiles with placeholder tiles if empty spots exist.
      * @returns An array of IDs of the added placeholder tiles.
      */
-    private surroundWithPlaceholders() {
+    private surroundWithPlaceholders(blocked:boolean=false) {
         const allTiles = this.gameModel.getAllPlaceholderTiles();
         for (const tile of allTiles) {
             const neighbors = tile.neighbors();
@@ -153,11 +153,12 @@ export class GamePlayService {
             // if the tile is a piece, check its neighbors and
             // add placeholder tiles if they don't exist
             for (const neighbor of neighbors) {
-                const neighborTile = this.gameModel.getTileAt(neighbor.x, neighbor.y, neighbor.z);
+                const neighborTile = this.gameModel.getPlaceholderAt(neighbor.x, neighbor.y, neighbor.z);
                 if (!neighborTile) {
                     // there's an empty spot next to a tile,
                     // so we should add a placeholder tile there
-                    this.gameModel.addPlaceholderTile(neighbor.x, neighbor.y, neighbor.z);
+                    this.gameModel.addPlaceholderTile(neighbor.x, neighbor.y, neighbor.z, blocked);
+
                     // addedTileIds.push(addedTileId);
                 }
                 //   }
@@ -250,11 +251,14 @@ export class GamePlayService {
         let spot2 = false;
         const existingTileA = this.gameModel.getTileAt(tileA.x, tileA.y, tileA.z);
         if (!existingTileA) {
-            spot1 = true;
+            const placeholder = this.gameModel.getPlaceholderAt(tileA.x, tileA.y, tileA.z);
+            
+            this.gameModel.isBlocked(placeholder!.id) ? spot1 = false : spot1 = true;
         }
         const existingTileB = this.gameModel.getTileAt(tileB.x, tileB.y, tileB.z);
         if (!existingTileB) {
-            spot2 = true;
+            const placeholder = this.gameModel.getPlaceholderAt(tileB.x, tileB.y, tileB.z);
+            this.gameModel.isBlocked(placeholder!.id) ? spot2 = false : spot2 = true;
         }
 
         return spot1 && spot2;

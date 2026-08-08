@@ -32319,6 +32319,7 @@
     grid;
     placeholderGrid;
     tileData = /* @__PURE__ */ new Map();
+    blockedIds = /* @__PURE__ */ new Set();
     constructor() {
       this.grid = new HexagonGrid();
       this.placeholderGrid = new HexagonGrid();
@@ -32326,6 +32327,8 @@
     clearGrid() {
       this.grid.clear();
       this.tileData.clear();
+      this.placeholderGrid.clear();
+      this.blockedIds.clear();
     }
     getAllTiles() {
       return this.grid.getAllTiles();
@@ -32345,12 +32348,18 @@
     getPlaceholderById(tileId) {
       return this.placeholderGrid.getTileById(tileId);
     }
+    isBlocked(placeholderId) {
+      return this.blockedIds.has(placeholderId);
+    }
     getTileDataById(tileId) {
       return this.tileData.get(tileId);
     }
-    addPlaceholderTile(x2, y2, z) {
+    addPlaceholderTile(x2, y2, z, blocked = false) {
       const newTile = new HexagonTile(x2, y2, z, "placeholder" /* placeholder */);
       this.placeholderGrid.addTile(newTile);
+      if (blocked) {
+        this.blockedIds.add(newTile.id);
+      }
       return newTile.id;
     }
     addTile(x2, y2, z, elements) {
@@ -32380,6 +32389,12 @@
       this.configModel = configModel2;
     }
   };
+
+  // js/services/GamePlayService.ts
+  var GamePlayService_exports = {};
+  __export(GamePlayService_exports, {
+    GamePlayService: () => GamePlayService
+  });
 
   // js/utils/Events.ts
   var EventEmitter = class {
@@ -32481,6 +32496,7 @@
       this.surroundWithPlaceholders();
       this.surroundWithPlaceholders();
       this.surroundWithPlaceholders();
+      this.surroundWithPlaceholders(true);
       this.onPlaceholdersUpdated.emit();
       this.currentPiece = this.dominoService.nextPiece();
       this.nextPiece = this.dominoService.nextPiece();
@@ -32554,14 +32570,14 @@
      * Surrounds all piece tiles with placeholder tiles if empty spots exist.
      * @returns An array of IDs of the added placeholder tiles.
      */
-    surroundWithPlaceholders() {
+    surroundWithPlaceholders(blocked = false) {
       const allTiles = this.gameModel.getAllPlaceholderTiles();
       for (const tile of allTiles) {
         const neighbors = tile.neighbors();
         for (const neighbor of neighbors) {
-          const neighborTile = this.gameModel.getTileAt(neighbor.x, neighbor.y, neighbor.z);
+          const neighborTile = this.gameModel.getPlaceholderAt(neighbor.x, neighbor.y, neighbor.z);
           if (!neighborTile) {
-            this.gameModel.addPlaceholderTile(neighbor.x, neighbor.y, neighbor.z);
+            this.gameModel.addPlaceholderTile(neighbor.x, neighbor.y, neighbor.z, blocked);
           }
         }
       }
@@ -32621,11 +32637,13 @@
       let spot2 = false;
       const existingTileA = this.gameModel.getTileAt(tileA.x, tileA.y, tileA.z);
       if (!existingTileA) {
-        spot1 = true;
+        const placeholder = this.gameModel.getPlaceholderAt(tileA.x, tileA.y, tileA.z);
+        this.gameModel.isBlocked(placeholder.id) ? spot1 = false : spot1 = true;
       }
       const existingTileB = this.gameModel.getTileAt(tileB.x, tileB.y, tileB.z);
       if (!existingTileB) {
-        spot2 = true;
+        const placeholder = this.gameModel.getPlaceholderAt(tileB.x, tileB.y, tileB.z);
+        this.gameModel.isBlocked(placeholder.id) ? spot2 = false : spot2 = true;
       }
       return spot1 && spot2;
     }
@@ -33656,9 +33674,9 @@
       if (!this.previewTileObject1 || !this.previewTileObject2) {
         return;
       }
-      this.currentPos1[1] = Math.sin(this.v * 10) * 0.05 + 0.2;
+      this.currentPos1[1] = Math.sin(this.v * 5) * 0.2 + 0.25;
       this.previewTileObject1.setPositionLocal(this.currentPos1);
-      this.currentPos2[1] = Math.sin(this.v * 10) * 0.05 + 0.2;
+      this.currentPos2[1] = Math.sin(this.v * 5) * 0.2 + 0.25;
       this.previewTileObject2.setPositionLocal(this.currentPos2);
       this.v += dt;
     }
@@ -37360,6 +37378,7 @@
   _registerEditor(tile_prefabs_exports);
   _registerEditor(tile_preview_next_exports);
   _registerEditor(tile_preview_exports);
+  _registerEditor(GamePlayService_exports);
   _registerEditor(GameServicesProvider_exports);
   _registerEditor(mainMenu_exports);
   _registerEditor(useMenuViewModel_exports);

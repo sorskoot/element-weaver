@@ -2516,7 +2516,15 @@
             "sky": {
                 "enabled": true,
                 "material": "217"
-            }
+            },
+            "textureAtlasSize": [
+                8192,
+                8192
+            ],
+            "compressedTextureAtlasSize": [
+                16384,
+                16384
+            ]
         },
         "xr": {
             "leftEyeObject": "18",

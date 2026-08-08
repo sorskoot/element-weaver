@@ -32027,7 +32027,6 @@
     { id: "lavender", name: "lavender", prefab: "Tile_Lavender" },
     { id: "pumpkin", name: "pumpkin", prefab: "Tile_Pumpkin" },
     { id: "daisy", name: "daisy", prefab: "Tile_Daisy" },
-    { id: "rock", name: "rock", prefab: "Tile_Rock" },
     { id: "poppy", name: "poppy", prefab: "Tile_Poppy" }
   ];
 
@@ -32320,6 +32319,7 @@
     grid;
     placeholderGrid;
     tileData = /* @__PURE__ */ new Map();
+    blockedIds = /* @__PURE__ */ new Set();
     constructor() {
       this.grid = new HexagonGrid();
       this.placeholderGrid = new HexagonGrid();
@@ -32327,6 +32327,8 @@
     clearGrid() {
       this.grid.clear();
       this.tileData.clear();
+      this.placeholderGrid.clear();
+      this.blockedIds.clear();
     }
     getAllTiles() {
       return this.grid.getAllTiles();
@@ -32346,12 +32348,18 @@
     getPlaceholderById(tileId) {
       return this.placeholderGrid.getTileById(tileId);
     }
+    isBlocked(placeholderId) {
+      return this.blockedIds.has(placeholderId);
+    }
     getTileDataById(tileId) {
       return this.tileData.get(tileId);
     }
-    addPlaceholderTile(x2, y2, z) {
+    addPlaceholderTile(x2, y2, z, blocked = false) {
       const newTile = new HexagonTile(x2, y2, z, "placeholder" /* placeholder */);
       this.placeholderGrid.addTile(newTile);
+      if (blocked) {
+        this.blockedIds.add(newTile.id);
+      }
       return newTile.id;
     }
     addTile(x2, y2, z, elements) {
@@ -32482,6 +32490,7 @@
       this.surroundWithPlaceholders();
       this.surroundWithPlaceholders();
       this.surroundWithPlaceholders();
+      this.surroundWithPlaceholders();
       this.onPlaceholdersUpdated.emit();
       this.currentPiece = this.dominoService.nextPiece();
       this.nextPiece = this.dominoService.nextPiece();
@@ -32555,14 +32564,14 @@
      * Surrounds all piece tiles with placeholder tiles if empty spots exist.
      * @returns An array of IDs of the added placeholder tiles.
      */
-    surroundWithPlaceholders() {
+    surroundWithPlaceholders(blocked = false) {
       const allTiles = this.gameModel.getAllPlaceholderTiles();
       for (const tile of allTiles) {
         const neighbors = tile.neighbors();
         for (const neighbor of neighbors) {
           const neighborTile = this.gameModel.getTileAt(neighbor.x, neighbor.y, neighbor.z);
           if (!neighborTile) {
-            this.gameModel.addPlaceholderTile(neighbor.x, neighbor.y, neighbor.z);
+            this.gameModel.addPlaceholderTile(neighbor.x, neighbor.y, neighbor.z, blocked);
           }
         }
       }

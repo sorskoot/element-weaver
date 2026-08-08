@@ -7,6 +7,7 @@ export class GameModel {
     private placeholderGrid: HexagonGrid;
 
     tileData: Map<string, HexTileElements> = new Map();
+    blockedIds: Set<string> = new Set();
 
     constructor() {
         this.grid = new HexagonGrid();
@@ -16,6 +17,8 @@ export class GameModel {
     clearGrid(): void {
         this.grid.clear();
         this.tileData.clear();
+        this.placeholderGrid.clear();
+        this.blockedIds.clear();
     }
 
     getAllTiles(): HexagonTile[] {
@@ -41,14 +44,20 @@ export class GameModel {
     public getPlaceholderById(tileId: string): HexagonTile | undefined {
         return this.placeholderGrid.getTileById(tileId);
     }
+    public isBlocked(placeholderId: string): boolean {
+        return this.blockedIds.has(placeholderId);
+    }
 
     getTileDataById(tileId: string): HexTileElements | undefined {
         return this.tileData.get(tileId);
     }
 
-    public addPlaceholderTile(x: number, y: number, z: number): string {
+    public addPlaceholderTile(x: number, y: number, z: number, blocked:boolean = false): string {
         const newTile = new HexagonTile(x, y, z, TileType.placeholder);
         this.placeholderGrid.addTile(newTile);
+        if (blocked) {
+            this.blockedIds.add(newTile.id);
+        }
         return newTile.id;
     }
 

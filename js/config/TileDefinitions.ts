@@ -16,9 +16,12 @@ export const NATURE_TILES: readonly TileDefinition[] = [
     {id: 'lavender', name: 'lavender', prefab: 'Tile_Lavender'},
     {id: 'pumpkin', name: 'pumpkin', prefab: 'Tile_Pumpkin'},
     {id: 'daisy', name: 'daisy', prefab: 'Tile_Daisy'},
-    {id: 'rock', name: 'rock', prefab: 'Tile_Rock'},
     {id: 'poppy', name: 'poppy', prefab: 'Tile_Poppy'},
 ];
+
+export const SPECIAL_TILES: readonly TileDefinition[] = [
+    {id: 'rock', name: 'rock', prefab: 'Tile_Rock'},
+]
 
 
  const tiles= {

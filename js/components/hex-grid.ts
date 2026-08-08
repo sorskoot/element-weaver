@@ -1,5 +1,5 @@
 import {rng, SelfDestruct, wlUtils} from '@sorskoot/wonderland-components';
-import {Component, Object3D, WonderlandEngine} from '@wonderlandengine/api';
+import {Component, MeshComponent, Object3D, WonderlandEngine} from '@wonderlandengine/api';
 import {property} from '@wonderlandengine/api/decorators.js';
 import {quat} from 'gl-matrix';
 import {NATURE_TILES} from '../config/TileDefinitions.ts';
@@ -75,6 +75,7 @@ export class HexGrid extends Component {
         const allTiles = this.gamePlayService.getAllPlaceholderTiles();
         for (const tile of allTiles) {
             const tileId = tile.id;
+
             const newTile = this.tilePrefabs.spawn('Placeholder')!;
             newTile.addComponent(TileData, {tileId: tileId});
             newTile.resetPosition();
@@ -82,6 +83,12 @@ export class HexGrid extends Component {
             const pos = tile.to2D();
             newTile.setPositionLocal([pos.x, 0, pos.y]);
             wlUtils.setActive(newTile, true);
+            if (this.gamePlayService.isBlockedPlaceholder(tileId)) {
+                const comps = wlUtils.getComponentsOfTypeRecursive(newTile, MeshComponent);
+                comps.forEach((comp) => {
+                    comp.active = false;
+                });
+            }
             this.placeholderTiles.set(tileId, newTile);
         }
     };
@@ -135,7 +142,7 @@ export class HexGrid extends Component {
         }
     };
 
-    private onTilesRemoved = (matches: string[]): void =>   {
+    private onTilesRemoved = (matches: string[]): void => {
         let delay = 0.05;
         matches.forEach((tileId) => {
             const existingTile = this.hexTiles.get(tileId);
@@ -145,8 +152,8 @@ export class HexGrid extends Component {
                 //existingTile.setScalingWorld([0, 0, 0]);
                 existingTile.addComponent(SelfDestruct, {lifeTime: delay});
                 this.hexTiles.delete(tileId);
-                delay += .1;
+                delay += 0.1;
             }
-        })
-    }
+        });
+    };
 }

@@ -32505,6 +32505,9 @@
     getAllPlaceholderTiles() {
       return this.gameModel.getAllPlaceholderTiles();
     }
+    isBlockedPlaceholder(tileId) {
+      return this.gameModel.isBlocked(tileId);
+    }
     getTilePositions(placeHolderId) {
       const tile = this.getPlaceholder(placeHolderId);
       if (!tile) {
@@ -33335,6 +33338,12 @@
         const pos = tile.to2D();
         newTile.setPositionLocal([pos.x, 0, pos.y]);
         wlUtils.setActive(newTile, true);
+        if (this.gamePlayService.isBlockedPlaceholder(tileId)) {
+          const comps = wlUtils.getComponentsOfTypeRecursive(newTile, MeshComponent);
+          comps.forEach((comp) => {
+            comp.active = false;
+          });
+        }
         this.placeholderTiles.set(tileId, newTile);
       }
     };
@@ -33718,6 +33727,7 @@
       this.previewTileObject2.setRotationLocal(tempQuat7);
     };
     onTileHover = (tileId, tilePos) => {
+      this.engine.canvas.style.cursor = "none";
       this.hoveringTileId = tileId;
       if (!this.previewTileObject1 || !this.previewTileObject2) {
         return;
@@ -33734,6 +33744,7 @@
       this.previewTileObject2.setScalingLocal(this.defaultScale);
     };
     onTileUnhover = (tileId) => {
+      this.engine.canvas.style.cursor = "default";
       this.hoveringTileId = null;
       if (!this.previewTileObject1 || !this.previewTileObject2) {
         return;

@@ -54,7 +54,10 @@ export class GamePlayService {
     public getAllPlaceholderTiles(): HexagonTile[] {
         return this.gameModel.getAllPlaceholderTiles();
     }
-
+    public isBlockedPlaceholder(tileId: string): boolean {
+        return this.gameModel.isBlocked(tileId);
+    }
+    
     public getTilePositions(placeHolderId: TileId): [Point2D, Point2D] | undefined {
         const tile = this.getPlaceholder(placeHolderId);
         if (!tile) {

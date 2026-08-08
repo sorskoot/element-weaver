@@ -114,6 +114,7 @@ export class TilePreview extends Component {
     }
 
     private onTileHover = (tileId: string, tilePos: {x: number; y: number}) => {
+        this.engine.canvas.style.cursor = 'none';
         this.hoveringTileId = tileId;
         if (!this.previewTileObject1 || !this.previewTileObject2) {
             return; // don't show if no preview
@@ -135,6 +136,7 @@ export class TilePreview extends Component {
     };
 
     private onTileUnhover = (tileId: string) => {
+            this.engine.canvas.style.cursor = 'default';
         this.hoveringTileId = null;
         if (!this.previewTileObject1 || !this.previewTileObject2) {
             return; // don't hide if no preview

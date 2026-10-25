@@ -36,17 +36,18 @@ The goal is to survive as long as possible and achieve the highest score.
 ## Board
 
 - Fixed-size hexagonal board.
-- Radius 4.
-- 61 playable cells before layout modifications.
+- Radius 3.
+- 37 playable cells before layout modifications.
 - The board starts empty.
 
 ### Layouts
 
-- Players select a layout before starting a game.
+- Players select a layout from the menu before starting a game.
 - Layouts disable specific cells on the board.
 - Initial layouts are handcrafted.
 - Layouts create different strategic challenges.
 - Future versions may include a layout editor.
+- The Cozy Grove layout is currently available; additional layouts still need to be enabled and selectable.
 
 ### End Condition
 
@@ -66,16 +67,16 @@ Examples:
 
 ### Colors
 
-- 8 colors.
-- Colors are gameplay-driven rather than element-driven.
+- 15 nature-themed tile types.
+- Tile types, rather than visual colors, determine matches.
 - No wildcard color.
-- Duplicate-color dominoes are allowed.
-- 75% of generated dominoes contain two different colors.
-- 25% of generated dominoes contain two identical colors.
+- Duplicate-type dominoes are allowed.
+- 76% of generated dominoes contain two different tile types.
+- 24% of generated dominoes contain two identical tile types.
 
 ## Matching Rules
 
-- A match is a connected group of 3 or more tiles of the same color.
+- A match is a connected group of 3 or more tiles of the same type.
 - Connections use hex-grid adjacency.
 - The entire connected group is removed.
 - All valid groups are removed simultaneously.
@@ -147,6 +148,8 @@ Visible during gameplay:
 - Current domino.
 - Next domino preview.
 
+The HUD is still in progress. The score and multiplier view exists, but it is not yet shown in the active UI. The current and next domino previews are handled separately.
+
 Optional polish:
 
 - Floating score popups.
@@ -203,20 +206,12 @@ Components should not contain core gameplay logic.
 
 ## Planned Implementation Order
 
-1. Fixed board implementation.
-2. Domino model.
-3. Layout system.
-4. Placement system.
-5. Match detection.
-6. Match resolution.
-7. Scoring.
-8. Next-piece preview.
-9. Game-over detection.
-10. High-score system.
-11. Layout editor.
-12. Visual polish.
-
-
+1. Make all layouts selectable from the menu.
+2. Complete and show the gameplay HUD.
+3. Game-over detection.
+4. High-score system.
+5. Layout editor.
+6. Visual polish.
 
 
 

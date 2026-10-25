@@ -32390,12 +32390,6 @@
     }
   };
 
-  // js/services/GamePlayService.ts
-  var GamePlayService_exports = {};
-  __export(GamePlayService_exports, {
-    GamePlayService: () => GamePlayService
-  });
-
   // js/utils/Events.ts
   var EventEmitter = class {
     listeners = [];
@@ -37389,7 +37383,6 @@
   _registerEditor(tile_prefabs_exports);
   _registerEditor(tile_preview_next_exports);
   _registerEditor(tile_preview_exports);
-  _registerEditor(GamePlayService_exports);
   _registerEditor(GameServicesProvider_exports);
   _registerEditor(mainMenu_exports);
   _registerEditor(useMenuViewModel_exports);

@@ -32490,7 +32490,7 @@
       this.surroundWithPlaceholders();
       this.surroundWithPlaceholders();
       this.surroundWithPlaceholders();
-      this.surroundWithPlaceholders();
+      this.surroundWithPlaceholders(true);
       this.onPlaceholdersUpdated.emit();
       this.currentPiece = this.dominoService.nextPiece();
       this.nextPiece = this.dominoService.nextPiece();
@@ -32498,6 +32498,9 @@
     }
     getAllPlaceholderTiles() {
       return this.gameModel.getAllPlaceholderTiles();
+    }
+    isBlockedPlaceholder(tileId) {
+      return this.gameModel.isBlocked(tileId);
     }
     getTilePositions(placeHolderId) {
       const tile = this.getPlaceholder(placeHolderId);
@@ -32569,7 +32572,7 @@
       for (const tile of allTiles) {
         const neighbors = tile.neighbors();
         for (const neighbor of neighbors) {
-          const neighborTile = this.gameModel.getTileAt(neighbor.x, neighbor.y, neighbor.z);
+          const neighborTile = this.gameModel.getPlaceholderAt(neighbor.x, neighbor.y, neighbor.z);
           if (!neighborTile) {
             this.gameModel.addPlaceholderTile(neighbor.x, neighbor.y, neighbor.z, blocked);
           }
@@ -32631,11 +32634,13 @@
       let spot2 = false;
       const existingTileA = this.gameModel.getTileAt(tileA.x, tileA.y, tileA.z);
       if (!existingTileA) {
-        spot1 = true;
+        const placeholder = this.gameModel.getPlaceholderAt(tileA.x, tileA.y, tileA.z);
+        this.gameModel.isBlocked(placeholder.id) ? spot1 = false : spot1 = true;
       }
       const existingTileB = this.gameModel.getTileAt(tileB.x, tileB.y, tileB.z);
       if (!existingTileB) {
-        spot2 = true;
+        const placeholder = this.gameModel.getPlaceholderAt(tileB.x, tileB.y, tileB.z);
+        this.gameModel.isBlocked(placeholder.id) ? spot2 = false : spot2 = true;
       }
       return spot1 && spot2;
     }
@@ -33327,6 +33332,12 @@
         const pos = tile.to2D();
         newTile.setPositionLocal([pos.x, 0, pos.y]);
         wlUtils.setActive(newTile, true);
+        if (this.gamePlayService.isBlockedPlaceholder(tileId)) {
+          const comps = wlUtils.getComponentsOfTypeRecursive(newTile, MeshComponent);
+          comps.forEach((comp) => {
+            comp.active = false;
+          });
+        }
         this.placeholderTiles.set(tileId, newTile);
       }
     };
@@ -33666,9 +33677,9 @@
       if (!this.previewTileObject1 || !this.previewTileObject2) {
         return;
       }
-      this.currentPos1[1] = Math.sin(this.v * 10) * 0.05 + 0.2;
+      this.currentPos1[1] = Math.sin(this.v * 5) * 0.2 + 0.25;
       this.previewTileObject1.setPositionLocal(this.currentPos1);
-      this.currentPos2[1] = Math.sin(this.v * 10) * 0.05 + 0.2;
+      this.currentPos2[1] = Math.sin(this.v * 5) * 0.2 + 0.25;
       this.previewTileObject2.setPositionLocal(this.currentPos2);
       this.v += dt;
     }
@@ -33710,6 +33721,7 @@
       this.previewTileObject2.setRotationLocal(tempQuat7);
     };
     onTileHover = (tileId, tilePos) => {
+      this.engine.canvas.style.cursor = "none";
       this.hoveringTileId = tileId;
       if (!this.previewTileObject1 || !this.previewTileObject2) {
         return;
@@ -33726,6 +33738,7 @@
       this.previewTileObject2.setScalingLocal(this.defaultScale);
     };
     onTileUnhover = (tileId) => {
+      this.engine.canvas.style.cursor = "default";
       this.hoveringTileId = null;
       if (!this.previewTileObject1 || !this.previewTileObject2) {
         return;

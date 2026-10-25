@@ -7,7 +7,7 @@ applyTo: '**/*.{ts,tsx,js,jsx,md,json}'
 
 Use these guidelines when generating code, reviewing changes, or answering questions in this repository.
 
-Follow the Wonderland Engine style guide in spirit and in detail. When there is any conflict between convenience and consistency, choose consistency.
+Follow the Wonderland Engine style guide in spirit and in detail, except where [the repository-wide coding rules](../copilot-instructions.md) override it. Those rules lead for formatting width, private member naming, and explicit access modifiers. When there is any conflict between convenience and consistency, choose consistency.
 
 ## Game
 
@@ -60,14 +60,14 @@ Elemental Echoes is a cozy VR world-builder where you guide the growth of a livi
 - Use 4 spaces for indentation.
 - Use PascalCase for classes, components, types, and file-scoped Wonderland concepts when the surrounding codebase expects that style.
 - Use lowerCamelCase for variables, functions, and properties.
-- Prefix private members with `_`.
-- Always include explicit access modifiers on class members.
+- Use lowerCamelCase for private members and backing fields without an underscore (`_`) prefix.
+- Always include explicit access modifiers on class members, including constructors, methods, accessors, and static members.
 - Avoid `any` unless there is no safer alternative and the reason is documented.
 - Prefer `const` over `let` when reassignment is not required.
 - Prefer template strings over concatenation.
 - Use `===` and `!==` only.
 - Never omit braces.
-- Keep lines short and readable.
+- Use a formatting width of 120 columns, matching the repository Prettier configuration; do not impose a 92-column limit.
 
 ## When Reviewing or Suggesting Changes
 

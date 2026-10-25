@@ -45,6 +45,11 @@ Elemental Echoes is a cozy VR world-builder where you guide the growth of a livi
 - Add comments only when they explain non-obvious intent or an architectural constraint.
 - Avoid cleverness, hidden branching, and implicit state.
 
+## Testing
+
+- Do not write or add automated tests for this game unless explicitly requested. Wonderland Engine runtime and editor integration make automated tests impractical for this project.
+- Validate changes with the relevant type-check, build, or manual in-editor checks where practical.
+
 ## When Writing TypeScript
 
 - Prefer small, focused modules over large files.

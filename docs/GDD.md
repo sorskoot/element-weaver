@@ -149,7 +149,7 @@ Visible during gameplay:
 - Current domino.
 - Next domino preview.
 
-The score and multiplier HUD is shown during gameplay, replacing the main menu in the same world-space UI root. The current and next domino previews are handled separately.
+The score and multiplier HUD is shown during gameplay, replacing the main menu in the same world-space UI root. The HUD is display-only: its raycast collider is disabled during gameplay so hover and placement input reaches the board beneath it. The collider is enabled in the main menu for button interaction. The current and next domino previews are handled separately.
 
 Optional polish:
 

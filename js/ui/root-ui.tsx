@@ -9,7 +9,7 @@ import {GameServicesProvider, useGameFlowService} from './GameServicesProvider.t
 import {gameFlowService, gamePlayService, scoreService} from '../bootstrap-services.ts';
 import {MainMenu} from './components/main-menu/mainMenu.tsx';
 import {GameState} from '../services/GameFlowService.ts';
-import {Component, Object3D} from '@wonderlandengine/api';
+import {CollisionComponent, Component, Object3D, PhysXComponent} from '@wonderlandengine/api';
 
 const App = (props: {comp: MainMenuRootUI}) => {
     const gameFlowService = useGameFlowService();
@@ -73,7 +73,27 @@ export class MainMenuRootUI extends ReactUiBase {
         super.update();
         this.unsubscribeGameState = gameFlowService.gameState.subscribe((state) => {
             this.setUiVisible(state === GameState.Menu || state === GameState.Playing);
+            this.setUiInteractive(state === GameState.Menu);
         });
+    }
+
+    public override onActivate(): void {
+        super.onActivate();
+        this.setUiInteractive(gameFlowService.gameState.value === GameState.Menu);
+    }
+
+    public override updateLayout(): void {
+        super.updateLayout();
+        this.setUiInteractive(gameFlowService.gameState.value === GameState.Menu);
+    }
+
+    private setUiInteractive(interactive: boolean): void {
+        for (const object of this.object.findByNameDirect('UIColliderObject')) {
+            const collider = object.getComponent(CollisionComponent) ?? object.getComponent(PhysXComponent);
+            if (collider) {
+                collider.active = interactive;
+            }
+        }
     }
 
     private setUiVisible(visible: boolean): void {

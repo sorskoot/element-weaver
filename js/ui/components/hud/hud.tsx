@@ -8,7 +8,7 @@ export const Hud = () => {
     const vm = useHudViewModel();
 
     return (
-        <Column gap={10} width={1000} height={200} justifyContent={Justify.Center} alignItems={Align.Center}>
+        <Column gap={10} width="100%" height={200} justifyContent={Justify.Center} alignItems={Align.Center}>
             <Text color={colorSwatch.Text} fontSize={24} text={`Score: ${formatNumber(vm.score)}`} />
             <Text color={colorSwatch.Text} fontSize={24} text={`Multiplier: ${formatNumber(vm.multiplier)}`} />
         </Column>

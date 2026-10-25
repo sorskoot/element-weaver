@@ -58,11 +58,13 @@ export class InputHelper extends Component {
     onActivate() {
         // Add scroll event listener to the canvas to handle mouse scroll events for rotating the tile preview
         this.engine.canvas.addEventListener('wheel', this.onMouseScroll);
+        window.addEventListener('keydown', this.onKeyDown);
     }
 
     onDeactivate() {
         // remove the scroll event listener when the component is deactivated
         this.engine.canvas.removeEventListener('wheel', this.onMouseScroll);
+        window.removeEventListener('keydown', this.onKeyDown);
     }
 
     private handleStickRotation(rotationValue: number): void {
@@ -87,6 +89,27 @@ export class InputHelper extends Component {
 
         this.gamePlayService.rotatePreviewTileClockwise();
     }
+
+    private onKeyDown = (event: KeyboardEvent): void => {
+        if (event.code !== 'Space' || event.defaultPrevented) {
+            return;
+        }
+
+        const target = event.target;
+        if (
+            target instanceof HTMLElement &&
+            (target.isContentEditable || target.closest('input, textarea, select'))
+        ) {
+            return;
+        }
+
+        event.preventDefault();
+        if (event.repeat) {
+            return;
+        }
+
+        this.rotate(false);
+    };
 
     // Maybe something like this
     private onMouseScroll = (event: WheelEvent) => {

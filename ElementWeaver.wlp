@@ -1614,7 +1614,9 @@
                     "main-menu-root-ui": {
                         "textMaterial": "DefaultFontMaterial",
                         "panelMaterialTextured": "215",
-                        "panelMaterial": "214"
+                        "panelMaterial": "214",
+                        "height": 1000,
+                        "width": 1000
                     }
                 }
             ],
@@ -2997,5 +2999,9 @@
     "morphTargets": {},
     "particleEffects": {},
     "probeVolumeScenarios": {},
-    "plugins": {}
+    "plugins": {
+        "@wonderlandengine/mcp-plugin": {
+            "enable": true
+        }
+    }
 }

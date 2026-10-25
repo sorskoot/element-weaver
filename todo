@@ -14,6 +14,17 @@ Element Weaver:
         ✓ implement removing of tiles @done(26-08-05 08:51)
         ~ this.grid.removeTile(tile.x, tile.y, tile.z)
 
+    GDD Implementation Priorities:
+        ☐ Enable all handcrafted layouts and make them selectable from the menu before starting a game.
+        ☐ Complete and show the gameplay HUD, including the existing score and multiplier view.
+        ☐ Detect game over when no valid domino placement remains, including isolated single-cell openings.
+        ☐ Record and persist best scores per layout and provide local leaderboards.
+        ☐ Create a layout editor for defining disabled board cells.
+
+    Scoring and Balancing:
+        ☐ Make score values configurable and account for tiles removed, group size, multiple groups, and multiple types matched in one placement.
+        ☐ Playtest difficulty and tune board size, layouts, number of tile types, and domino type distribution without gravity, refill, board growth, or cascades.
+
     AR:
         ☐ Describe AR-mode in the GDD
         ☐ Figure out a way to have objects be disabled when in AR mode

@@ -1,5 +1,5 @@
 import {ReadonlySignal, signal} from '@preact/signals-core';
-import {IGamePlayService} from './GamePlayService.ts';
+import {GamePlayService} from './GamePlayService.ts';
 
 export enum GameState {
     TitleScreen = 'title-screen',
@@ -11,7 +11,7 @@ export enum GameState {
 
 export class GameFlowService {
     gameState = signal<GameState>(GameState.Menu);
-    constructor(private gamePlayService: IGamePlayService) {}
+    constructor(private gamePlayService: GamePlayService) {}
 
     startGame(): void {
         this.gamePlayService.newGame();

@@ -7,7 +7,7 @@ export const MainMenu = () => {
     const vm = useMenuViewModel();
 
     return (
-        <Column gap={10} width={1000} height={1000} justifyContent={Justify.Center} alignItems={Align.Center}>
+        <Column gap={10} width="100%" height="100%" justifyContent={Justify.Center} alignItems={Align.Center}>
             <Text fontSize={32} color={colorSwatch.Text}>
                 -=[ Element Weaver ]=-
             </Text>

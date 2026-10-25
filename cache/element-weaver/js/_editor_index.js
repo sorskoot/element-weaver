@@ -22,8 +22,12 @@ import * as _C__dev_element_weaver_js_components_tile_preview_next_ts from 'C:/d
 _registerEditor(_C__dev_element_weaver_js_components_tile_preview_next_ts);
 import * as _C__dev_element_weaver_js_components_tile_preview_ts from 'C:/dev/element-weaver/js/components/tile-preview.ts';
 _registerEditor(_C__dev_element_weaver_js_components_tile_preview_ts);
+import * as _C__dev_element_weaver_js_services_GameFlowService_ts from 'C:/dev/element-weaver/js/services/GameFlowService.ts';
+_registerEditor(_C__dev_element_weaver_js_services_GameFlowService_ts);
 import * as _C__dev_element_weaver_js_ui_GameServicesProvider_tsx from 'C:/dev/element-weaver/js/ui/GameServicesProvider.tsx';
 _registerEditor(_C__dev_element_weaver_js_ui_GameServicesProvider_tsx);
+import * as _C__dev_element_weaver_js_ui_components_hud_hud_tsx from 'C:/dev/element-weaver/js/ui/components/hud/hud.tsx';
+_registerEditor(_C__dev_element_weaver_js_ui_components_hud_hud_tsx);
 import * as _C__dev_element_weaver_js_ui_components_main_menu_mainMenu_tsx from 'C:/dev/element-weaver/js/ui/components/main-menu/mainMenu.tsx';
 _registerEditor(_C__dev_element_weaver_js_ui_components_main_menu_mainMenu_tsx);
 import * as _C__dev_element_weaver_js_ui_components_main_menu_useMenuViewModel_ts from 'C:/dev/element-weaver/js/ui/components/main-menu/useMenuViewModel.ts';

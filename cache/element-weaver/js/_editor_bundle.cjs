@@ -3299,11 +3299,11 @@
               return jsxWithValidation(type, props, key, false);
             }
           }
-          var jsx4 = jsxWithValidationDynamic;
-          var jsxs2 = jsxWithValidationStatic;
+          var jsx5 = jsxWithValidationDynamic;
+          var jsxs4 = jsxWithValidationStatic;
           exports.Fragment = REACT_FRAGMENT_TYPE;
-          exports.jsx = jsx4;
-          exports.jsxs = jsxs2;
+          exports.jsx = jsx5;
+          exports.jsxs = jsxs4;
         })();
       }
     }
@@ -32652,6 +32652,13 @@
     }
   };
 
+  // js/services/GameFlowService.ts
+  var GameFlowService_exports = {};
+  __export(GameFlowService_exports, {
+    GameFlowService: () => GameFlowService,
+    GameState: () => GameState
+  });
+
   // node_modules/@preact/signals-core/dist/signals-core.module.js
   var i = Symbol.for("preact-signals");
   function t() {
@@ -33068,6 +33075,14 @@
   }
 
   // js/services/GameFlowService.ts
+  var GameState = /* @__PURE__ */ ((GameState2) => {
+    GameState2["TitleScreen"] = "title-screen";
+    GameState2["Menu"] = "menu";
+    GameState2["Playing"] = "playing";
+    GameState2["Paused"] = "paused";
+    GameState2["GameOver"] = "game-over";
+    return GameState2;
+  })(GameState || {});
   var GameFlowService = class {
     constructor(gamePlayService2) {
       this.gamePlayService = gamePlayService2;
@@ -33431,9 +33446,11 @@
     }
     onActivate() {
       this.engine.canvas.addEventListener("wheel", this.onMouseScroll);
+      window.addEventListener("keydown", this.onKeyDown);
     }
     onDeactivate() {
       this.engine.canvas.removeEventListener("wheel", this.onMouseScroll);
+      window.removeEventListener("keydown", this.onKeyDown);
     }
     handleStickRotation(rotationValue) {
       if (Math.abs(rotationValue) <= this.stickDeadzoneThreshold) {
@@ -33453,6 +33470,20 @@
       }
       this.gamePlayService.rotatePreviewTileClockwise();
     }
+    onKeyDown = (event) => {
+      if (event.code !== "Space" || event.defaultPrevented) {
+        return;
+      }
+      const target = event.target;
+      if (target instanceof HTMLElement && (target.isContentEditable || target.closest("input, textarea, select"))) {
+        return;
+      }
+      event.preventDefault();
+      if (event.repeat) {
+        return;
+      }
+      this.rotate(false);
+    };
     // Maybe something like this
     onMouseScroll = (event) => {
       if (Math.abs(event.deltaY) < this.mouseTriggerThreshold) {
@@ -33784,10 +33815,10 @@
     return useGameServices().scoreService;
   }
 
-  // js/ui/components/main-menu/mainMenu.tsx
-  var mainMenu_exports = {};
-  __export(mainMenu_exports, {
-    MainMenu: () => MainMenu
+  // js/ui/components/hud/hud.tsx
+  var hud_exports = {};
+  __export(hud_exports, {
+    Hud: () => Hud
   });
 
   // node_modules/@wonderlandengine/react-ui/dist/components/Button.js
@@ -37253,15 +37284,52 @@
     ElementSpirit: "#ad02aa"
   };
 
+  // js/ui/hooks/useSignalValue.ts
+  var import_react13 = __toESM(require_react(), 1);
+  function useSignalValue(signal) {
+    const [value, setValue] = (0, import_react13.useState)(signal.value);
+    (0, import_react13.useEffect)(() => {
+      return signal.subscribe(setValue);
+    }, [signal]);
+    return value;
+  }
+
+  // js/ui/components/hud/useHudViewModel.ts
+  function useHudViewModel() {
+    const scoreService2 = useScoreService();
+    const score = useSignalValue(scoreService2.score);
+    const multiplier = useSignalValue(scoreService2.multiplier);
+    return {
+      score,
+      multiplier
+    };
+  }
+
+  // js/ui/components/hud/hud.tsx
+  var import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
+  var Hud = () => {
+    const vm = useHudViewModel();
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Column, { gap: 10, width: "100%", height: 200, justifyContent: Justify.Center, alignItems: Align.Center, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { color: colorSwatch.Text, fontSize: 24, text: `Score: ${formatNumber(vm.score)}` }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { color: colorSwatch.Text, fontSize: 24, text: `Multiplier: ${formatNumber(vm.multiplier)}` })
+    ] });
+  };
+
+  // js/ui/components/main-menu/mainMenu.tsx
+  var mainMenu_exports = {};
+  __export(mainMenu_exports, {
+    MainMenu: () => MainMenu
+  });
+
   // js/ui/components/main-menu/useMenuViewModel.ts
   var useMenuViewModel_exports = {};
   __export(useMenuViewModel_exports, {
     useMenuViewModel: () => useMenuViewModel
   });
-  var import_react13 = __toESM(require_react(), 1);
+  var import_react14 = __toESM(require_react(), 1);
   function useMenuViewModel() {
     const gameFlowService2 = useGameFlowService();
-    const startGame = (0, import_react13.useCallback)(() => {
+    const startGame = (0, import_react14.useCallback)(() => {
       gameFlowService2.startGame();
     }, [gameFlowService2]);
     return {
@@ -37270,12 +37338,12 @@
   }
 
   // js/ui/components/main-menu/mainMenu.tsx
-  var import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
   var MainMenu = () => {
     const vm = useMenuViewModel();
-    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Column, { gap: 10, width: 1e3, height: 1e3, justifyContent: Justify.Center, alignItems: Align.Center, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { fontSize: 32, color: colorSwatch.Text, children: "-=[ Element Weaver ]=-" }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(Column, { gap: 10, width: "100%", height: "100%", justifyContent: Justify.Center, alignItems: Align.Center, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Text, { fontSize: 32, color: colorSwatch.Text, children: "-=[ Element Weaver ]=-" }),
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
         Panel,
         {
           onClick: vm.play,
@@ -37285,7 +37353,7 @@
           backgroundColor: colorSwatch.MainButton,
           justifyContent: Justify.Center,
           alignItems: Align.Center,
-          children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { fontSize: 16, children: "Play" })
+          children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Text, { fontSize: 16, children: "Play" })
         }
       )
     ] });
@@ -37298,24 +37366,14 @@
   });
 
   // js/ui/utils/menu-theme-context.ts
-  var import_react14 = __toESM(require_react(), 1);
   var import_react15 = __toESM(require_react(), 1);
-  var MenuThemeContext = (0, import_react15.createContext)(
+  var import_react16 = __toESM(require_react(), 1);
+  var MenuThemeContext = (0, import_react16.createContext)(
     null
   );
 
-  // js/ui/hooks/useSignalValue.ts
-  var import_react16 = __toESM(require_react(), 1);
-  function useSignalValue(signal) {
-    const [value, setValue] = (0, import_react16.useState)(signal.value);
-    (0, import_react16.useEffect)(() => {
-      return signal.subscribe(setValue);
-    }, [signal]);
-    return value;
-  }
-
   // js/ui/root-ui.tsx
-  var import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime9 = __toESM(require_jsx_runtime(), 1);
   var App = (props) => {
     const gameFlowService2 = useGameFlowService();
     const gameState = useSignalValue(gameFlowService2.gameState);
@@ -37336,25 +37394,78 @@
       }
     };
     const comp = props.comp;
-    return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(MaterialContext.Provider, { value: comp, children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(MenuThemeContext.Provider, { value: DefaultTheme, children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Container, { width: 1e3, height: 1e3, justifyContent: Justify.Center, alignItems: Align.Center, children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(MainMenu, {}) }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(MaterialContext.Provider, { value: comp, children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(MenuThemeContext.Provider, { value: DefaultTheme, children: /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(
+      Container,
+      {
+        width: comp.width,
+        height: comp.height,
+        justifyContent: Justify.Center,
+        alignItems: Align.Center,
+        children: [
+          gameState === "menu" /* Menu */ && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(MainMenu, {}),
+          gameState === "playing" /* Playing */ && /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Hud, {})
+        ]
+      }
+    ) }) });
   };
   var MainMenuRootUI = class extends ReactUiBase {
+    width = 1e3;
+    height = 1e3;
+    unsubscribeGameState = null;
+    hiddenComponents = null;
     async start() {
-      gameFlowService.gameState.subscribe((state) => {
-        if (state === "menu" /* Menu */) {
-          wlUtils.setActive(this.object, true);
-        } else {
-          wlUtils.setActive(this.object, false);
+      await super.start();
+      if (this.isDestroyed) {
+        return;
+      }
+      super.update();
+      this.unsubscribeGameState = gameFlowService.gameState.subscribe((state) => {
+        this.setUiVisible(state === "menu" /* Menu */ || state === "playing" /* Playing */);
+      });
+    }
+    setUiVisible(visible) {
+      if (visible) {
+        const components2 = this.hiddenComponents;
+        this.hiddenComponents = null;
+        components2?.forEach((active, component) => {
+          if (!component.isDestroyed) {
+            component.active = active;
+          }
+        });
+        return;
+      }
+      if (this.hiddenComponents) {
+        return;
+      }
+      const components = /* @__PURE__ */ new Map();
+      const collectComponents = (object) => {
+        for (const component of object.getComponents()) {
+          components.set(component, component.active);
+        }
+        for (const child of object.children) {
+          collectComponents(child);
+        }
+      };
+      collectComponents(this.object);
+      this.hiddenComponents = components;
+      components.forEach((active, component) => {
+        if (active && !component.isDestroyed) {
+          component.active = false;
         }
       });
-      return super.start();
+    }
+    onDestroy() {
+      this.unsubscribeGameState?.();
+      this.unsubscribeGameState = null;
+      this.hiddenComponents = null;
+      super.onDestroy();
     }
     update(dt) {
       super.update();
     }
     //TK: Somehow add an event listener or something to completely disable this UI component when needed.
     render() {
-      return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
         GameServicesProvider,
         {
           services: {
@@ -37362,13 +37473,19 @@
             gamePlayService,
             scoreService
           },
-          children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(App, { comp: this })
+          children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(App, { comp: this })
         }
       );
     }
   };
   __publicField(MainMenuRootUI, "TypeName", "main-menu-root-ui");
   __publicField(MainMenuRootUI, "InheritProperties", true);
+  __decorateClass([
+    property.int(1e3)
+  ], MainMenuRootUI.prototype, "width", 2);
+  __decorateClass([
+    property.int(1e3)
+  ], MainMenuRootUI.prototype, "height", 2);
 
   // cache/element-weaver/js/_editor_index.js
   _registerEditor(dist_exports);
@@ -37383,7 +37500,9 @@
   _registerEditor(tile_prefabs_exports);
   _registerEditor(tile_preview_next_exports);
   _registerEditor(tile_preview_exports);
+  _registerEditor(GameFlowService_exports);
   _registerEditor(GameServicesProvider_exports);
+  _registerEditor(hud_exports);
   _registerEditor(mainMenu_exports);
   _registerEditor(useMenuViewModel_exports);
   _registerEditor(root_ui_exports);

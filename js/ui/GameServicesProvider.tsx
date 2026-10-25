@@ -1,12 +1,12 @@
 import React, {createContext, useContext} from 'react';
-import {IGameFlowService} from '../services/GameFlowService.ts';
-import {IGamePlayService} from '../services/GamePlayService.ts';
-import {IScoreService} from '../services/ScoreService.ts';
+import {GameFlowService} from '../services/GameFlowService.ts';
+import {GamePlayService} from '../services/GamePlayService.ts';
+import {ScoreService} from '../services/ScoreService.ts';
 
 export interface GameServices {
-    gameFlowService: IGameFlowService;
-    gamePlayService: IGamePlayService;
-    scoreService: IScoreService;
+    gameFlowService: GameFlowService;
+    gamePlayService: GamePlayService;
+    scoreService: ScoreService;
 }
 
 const GameServicesContext = createContext<GameServices | null>(null);

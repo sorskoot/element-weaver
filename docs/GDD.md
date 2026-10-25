@@ -12,6 +12,7 @@ The goal is to survive as long as possible and achieve the highest score.
 
 - Primary platform: VR
 - Also playable in a desktop browser
+- Desktop controls: press Space to rotate the current domino preview 60° clockwise; mouse-wheel rotation remains available.
 - Built with Wonderland Engine
 
 ## Core Design Pillars
@@ -148,7 +149,7 @@ Visible during gameplay:
 - Current domino.
 - Next domino preview.
 
-The HUD is still in progress. The score and multiplier view exists, but it is not yet shown in the active UI. The current and next domino previews are handled separately.
+The score and multiplier HUD is shown during gameplay, replacing the main menu in the same world-space UI root. The current and next domino previews are handled separately.
 
 Optional polish:
 
@@ -207,7 +208,7 @@ Components should not contain core gameplay logic.
 ## Planned Implementation Order
 
 1. Make all layouts selectable from the menu.
-2. Complete and show the gameplay HUD.
+2. Complete the remaining gameplay HUD features.
 3. Game-over detection.
 4. High-score system.
 5. Layout editor.
